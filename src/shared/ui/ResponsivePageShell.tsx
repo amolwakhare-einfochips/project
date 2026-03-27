@@ -1,11 +1,57 @@
+import React from "react";
+
 type Props = {
   children: React.ReactNode;
+  title?: string;
 };
 
-const ResponsivePageShell = ({ children }: Props) => {
+const ResponsivePageShell = ({ children, title }: Props) => {
   return (
-    <div className="px-4 py-4 xs:px-4 sm:px-6 md:px-10 lg:px-16 xlg:px-24">
-      <div className="max-w-7xl mx-auto">{children}</div>
+    <div
+      className="
+        min-h-screen 
+        bg-gray-50 
+        p-4 
+        xs:p-5 
+        sm:p-6 
+        md:p-8 
+        lg:p-10 
+        xlg:p-12
+      "
+    >
+      <div
+        className="
+          max-w-7xl 
+          mx-auto 
+          bg-white 
+          rounded-xl 
+          shadow-md 
+          p-4 
+          xs:p-5 
+          sm:p-6 
+          md:p-8
+        "
+      >
+        {title && (
+          <h1
+            className="
+              text-xl 
+              xs:text-2xl 
+              sm:text-3xl 
+              md:text-4xl 
+              font-bold 
+              mb-4 
+              md:mb-6
+            "
+          >
+            {title}
+          </h1>
+        )}
+
+        <div className="space-y-4 md:space-y-6">
+          {children}
+        </div>
+      </div>
     </div>
   );
 };

@@ -1,25 +1,44 @@
-import Button from "../../../shared/ui/Button";
 import { useTranslation } from "react-i18next";
 import ResponsivePageShell from "../../../shared/ui/ResponsivePageShell";
+import { useEffect } from "react";
 
-
-export default function Week1CatalogPage() {
+const Week1CatalogPage = () => {
   const { t, i18n } = useTranslation();
 
-  return (
-    <ResponsivePageShell>
-    <div className="p-6 space-y-4">
-      <h1 className="text-2xl font-bold">Week 1 Catalog Page</h1>
+  const handleLanguageToggle = () => {
+    const newLang = i18n.language === "en" ? "es" : "en";
+    i18n.changeLanguage(newLang);
+    localStorage.setItem("lang", newLang);
+  };
 
-      <Button label={t("button")} onClick={() => alert("Button clicked")} />
+  useEffect(() => {
+    fetch("/api/products")
+      .then(async (res) => {
+        const text = await res.text();
+        console.log("RAW RESPONSE:", text); 
+        return JSON.parse(text);
+      })
+      .then((data) => console.log("DATA:", data))
+      .catch((err) => console.error("ERROR:", err));
+  }, []);
+
+  return (
+    <ResponsivePageShell title={t("title")}>
+      <button
+        className="px-4 py-2 bg-purple-600 text-white rounded-md"
+        onClick={() => alert("Clicked")}
+      >
+        {t("clickMe")}
+      </button>
 
       <button
-        onClick={() => i18n.changeLanguage("hi")}
         className="px-3 py-1 bg-gray-200 rounded"
+        onClick={handleLanguageToggle}
       >
-        Switch to Hindi
+        {t("switchLanguage")}
       </button>
-    </div>
     </ResponsivePageShell>
   );
-}
+};
+
+export default Week1CatalogPage;

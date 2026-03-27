@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "vitest",
+    "typecheck": "tsc --noEmit",
     "prepare": "husky"
   },
   "dependencies": {

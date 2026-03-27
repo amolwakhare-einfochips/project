@@ -1,0 +1,10 @@
+.button {
+  background-color: purple;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+
+  &:hover {
+    background-color: darkviolet;
+  }
+}

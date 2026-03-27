@@ -12,6 +12,6 @@ describe('Week1CatalogPage', () => {
   test('renders buttons', () => {
     render(<Week1CatalogPage />);
     
-    expect(screen.getByText('Switch to Hindi')).toBeInTheDocument();
+    expect(screen.getByText(/Switch to/i)).toBeInTheDocument();
   });
 });

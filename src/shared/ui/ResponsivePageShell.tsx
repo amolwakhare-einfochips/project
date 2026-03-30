@@ -1,4 +1,7 @@
 import React from "react";
+import styles from "./ResponsivePageShell.module.scss";
+
+<div className={styles.container}></div>
 
 type Props = {
   children: React.ReactNode;

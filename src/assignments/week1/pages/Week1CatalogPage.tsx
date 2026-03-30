@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import ResponsivePageShell from "../../../shared/ui/ResponsivePageShell";
 import { useEffect } from "react";
+import { getProducts } from "../../../shared/ui/api/products";
 
 const Week1CatalogPage = () => {
   const { t, i18n } = useTranslation();
@@ -11,16 +12,11 @@ const Week1CatalogPage = () => {
     localStorage.setItem("lang", newLang);
   };
 
-  useEffect(() => {
-    fetch("/api/products")
-      .then(async (res) => {
-        const text = await res.text();
-        console.log("RAW RESPONSE:", text); 
-        return JSON.parse(text);
-      })
-      .then((data) => console.log("DATA:", data))
-      .catch((err) => console.error("ERROR:", err));
-  }, []);
+ useEffect(() => {
+  getProducts()
+    .then((data) => console.log("DATA:", data))
+    .catch((err) => console.error("ERROR:", err));
+}, []);
 
   return (
     <ResponsivePageShell title={t("title")}>

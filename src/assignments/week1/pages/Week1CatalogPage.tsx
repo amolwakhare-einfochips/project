@@ -7,7 +7,6 @@ import { useState } from "react";
 const Week1CatalogPage = () => {
   const { t } = useTranslation();
 
- 
   const { data, isLoading, isError, refetch } = useCatalogListQuery();
   const [forceLoading, setForceLoading] = useState(false);
   const showLoading = isLoading || forceLoading;
@@ -23,7 +22,11 @@ const Week1CatalogPage = () => {
               <span className="text-xs px-2 py-1 border border-accent text-accent rounded">
                 W1-S1
               </span>
-              <h2 className="font-semibold text-lg">Catalog List</h2>
+
+              <h2 className="font-semibold text-lg">
+                {t("catalog.title")}
+              </h2>
+
               <button
                 onClick={() => setForceLoading(prev => !prev)}
                 className="ml-2 px-2 py-1 text-xs border border-accent text-accent rounded"
@@ -42,7 +45,9 @@ const Week1CatalogPage = () => {
               <span className="w-2 h-2 bg-green-400 rounded-full"></span>
 
               <span className="ml-2">
-                {showLoading ? "Loading State" : "LG Laptop — Success State"}
+                {showLoading
+                  ? t("catalog.loading")
+                  : t("catalog.success")}
               </span>
             </div>
 
@@ -60,29 +65,31 @@ const Week1CatalogPage = () => {
 
         {/* PAGE HEADER */}
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Product Catalog</h2>
+          <h2 className="text-xl font-semibold">
+            {t("catalog.pageTitle")}
+          </h2>
 
           <button className="bg-accent text-white px-4 py-2 rounded-md shadow hover:bg-blue-600 transition">
-            + Create Item
+            + {t("catalog.create")}
           </button>
         </div>
 
         {/* TOOLBAR */}
         <div className="flex gap-2 mb-4">
           <div className="flex-1 bg-surface2 border border-border rounded px-3 py-2 text-sm text-gray-400">
-            🔍 Search products...
+            🔍 {t("catalog.search")}
           </div>
 
           <button className="bg-surface2 border border-border px-3 py-2 rounded text-sm">
-            Filter ▾
+            {t("catalog.filter")} ▾
           </button>
 
           <button className="bg-surface2 border border-border px-3 py-2 rounded text-sm">
-            Sort ▾
+            {t("catalog.sort")} ▾
           </button>
         </div>
 
-        {/* MAIN LIST COMPONENT */}
+        {/* LIST */}
         <CatalogList
           data={data || []}
           isLoading={showLoading}
@@ -99,7 +106,7 @@ const Week1CatalogPage = () => {
                 : "bg-green-900 text-green-400"
             }`}
           >
-            {showLoading ? "loading" : "success"}
+            {showLoading ? t("common.loading") : t("common.success")}
           </span>
 
           <span className="text-gray-400 text-xs">

@@ -1,6 +1,13 @@
 import ProductCardSkeleton from "../../../shared/ui/ProductCardSkeleton";
 import { useTranslation } from "react-i18next";
 
+type Product = {
+  id: number;
+  name: string;
+  price: number;
+  category: string;
+};
+
 const getIcon = (category: string) => {
   switch (category) {
     case "Peripherals":
@@ -19,7 +26,7 @@ const getIcon = (category: string) => {
 };
 
 type Props = {
-  data: any[];
+  data: Product[];
   isLoading: boolean;
   isError: boolean;
   onRetry: () => void;
@@ -28,12 +35,10 @@ type Props = {
 const CatalogList = ({ data, isLoading, isError, onRetry }: Props) => {
   const { t } = useTranslation();
 
+ 
   if (isError) {
     return (
-      <div
-        data-testid="error-state"
-        className="text-center text-red-400 py-10"
-      >
+      <div data-testid="error-state" className="text-center text-red-400 py-10">
         {t("catalog.error")}
         <button
           onClick={onRetry}
@@ -45,6 +50,7 @@ const CatalogList = ({ data, isLoading, isError, onRetry }: Props) => {
     );
   }
 
+ 
   if (isLoading) {
     return (
       <div
@@ -58,6 +64,7 @@ const CatalogList = ({ data, isLoading, isError, onRetry }: Props) => {
     );
   }
 
+ 
   if (!data || data.length === 0) {
     return (
       <div data-testid="empty-state" className="text-center text-gray-400 py-10">
@@ -66,12 +73,13 @@ const CatalogList = ({ data, isLoading, isError, onRetry }: Props) => {
     );
   }
 
+ 
   return (
     <div
       data-testid="success-state"
       className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xlg:grid-cols-4"
     >
-      {data.map((product: any) => (
+      {data.map((product: Product) => (
         <div
           key={product.id}
           className="bg-surface2 border border-border rounded-lg p-4 hover:border-accent hover:shadow-lg transition"

@@ -1,14 +1,8 @@
 import ProductCardSkeleton from "../../../shared/ui/ProductCardSkeleton";
 import { useTranslation } from "react-i18next";
+import type { Product } from "../types/product";
 
-type Product = {
-  id: number;
-  name: string;
-  price: number;
-  category: string;
-};
-
-const getIcon = (category: string) => {
+const getIcon = (category: string | undefined) => {
   switch (category) {
     case "Peripherals":
       return "🖱️";
@@ -35,28 +29,20 @@ type Props = {
 const CatalogList = ({ data, isLoading, isError, onRetry }: Props) => {
   const { t } = useTranslation();
 
- 
   if (isError) {
     return (
-      <div data-testid="error-state" className="text-center text-red-400 py-10">
+      <div className="text-center text-red-400 py-10">
         {t("catalog.error")}
-        <button
-          onClick={onRetry}
-          className="ml-3 px-3 py-1 border rounded"
-        >
+        <button onClick={onRetry} className="ml-3 px-3 py-1 border rounded">
           {t("common.retry")}
         </button>
       </div>
     );
   }
 
- 
   if (isLoading) {
     return (
-      <div
-        data-testid="loading-state"
-        className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xlg:grid-cols-4"
-      >
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
           <ProductCardSkeleton key={i} />
         ))}
@@ -64,25 +50,20 @@ const CatalogList = ({ data, isLoading, isError, onRetry }: Props) => {
     );
   }
 
- 
   if (!data || data.length === 0) {
     return (
-      <div data-testid="empty-state" className="text-center text-gray-400 py-10">
+      <div className="text-center text-gray-400 py-10">
         {t("catalog.empty")}
       </div>
     );
   }
 
- 
   return (
-    <div
-      data-testid="success-state"
-      className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xlg:grid-cols-4"
-    >
-      {data.map((product: Product) => (
+    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3">
+      {data.map((product) => (
         <div
           key={product.id}
-          className="bg-surface2 border border-border rounded-lg p-4 hover:border-accent hover:shadow-lg transition"
+          className="bg-surface2 border border-border rounded-lg p-4"
         >
           <div className="h-16 bg-[#1e2438] rounded mb-3 flex items-center justify-center text-2xl">
             {getIcon(product.category)}
@@ -91,7 +72,7 @@ const CatalogList = ({ data, isLoading, isError, onRetry }: Props) => {
           <h3 className="font-medium text-sm">{product.name}</h3>
 
           <p className="text-accent text-sm font-mono">
-            ${product.price?.toFixed?.(2) || "0.00"}
+            ${product.price.toFixed(2)}
           </p>
 
           <p className="text-gray-400 text-xs">{product.category}</p>

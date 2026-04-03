@@ -3,6 +3,10 @@ import ResponsivePageShell from "../../../shared/ui/ResponsivePageShell";
 import { useCatalogListQuery } from "../hooks/useCatalogListQuery";
 import CatalogList from "../components/CatalogList";
 import { useState } from "react";
+import type { Product } from "../types/product";
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState } from "../../../store";
+import { setSearch, setCategory, setSort } from "../../state/uiSlice";
 
 const Week1CatalogPage = () => {
   const { t } = useTranslation();
@@ -10,6 +14,30 @@ const Week1CatalogPage = () => {
   const { data, isLoading, isError, refetch } = useCatalogListQuery();
   const [forceLoading, setForceLoading] = useState(false);
   const showLoading = isLoading || forceLoading;
+
+  const dispatch = useDispatch();
+  const { search, category, sort } = useSelector(
+    (state: RootState) => state.ui
+  );
+
+  // FILTER + SORT
+  let processedData: Product[] = (data as Product[] | undefined) ?? [];
+
+  processedData = processedData.filter((item) =>
+    item.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  if (category !== "all") {
+    processedData = processedData.filter(
+      (item) => item.category === category
+    );
+  }
+
+  processedData = [...processedData].sort((a, b) => {
+    const priceA = a.price ?? 0;
+    const priceB = b.price ?? 0;
+    return sort === "asc" ? priceA - priceB : priceB - priceA;
+  });
 
   return (
     <ResponsivePageShell title="">
@@ -28,7 +56,7 @@ const Week1CatalogPage = () => {
               </h2>
 
               <button
-                onClick={() => setForceLoading(prev => !prev)}
+                onClick={() => setForceLoading((prev) => !prev)}
                 className="ml-2 px-2 py-1 text-xs border border-accent text-accent rounded"
               >
                 Toggle Loading
@@ -76,22 +104,40 @@ const Week1CatalogPage = () => {
 
         {/* TOOLBAR */}
         <div className="flex gap-2 mb-4">
-          <div className="flex-1 bg-surface2 border border-border rounded px-3 py-2 text-sm text-gray-400">
-            🔍 {t("catalog.search")}
-          </div>
 
-          <button className="bg-surface2 border border-border px-3 py-2 rounded text-sm">
-            {t("catalog.filter")} ▾
-          </button>
+          <input
+            value={search}
+            onChange={(e) => dispatch(setSearch(e.target.value))}
+            placeholder={t("catalog.search")}
+            className="flex-1 bg-surface2 border border-border rounded px-3 py-2 text-sm text-white placeholder-gray-400 focus:outline-none"
+          />
 
-          <button className="bg-surface2 border border-border px-3 py-2 rounded text-sm">
-            {t("catalog.sort")} ▾
-          </button>
+          <select
+            value={category}
+            onChange={(e) => dispatch(setCategory(e.target.value))}
+            className="bg-surface2 border border-border px-3 py-2 rounded text-sm text-white"
+          >
+            <option value="all">All</option>
+            <option value="Audio">Audio</option>
+            <option value="Peripherals">Peripherals</option>
+            <option value="Accessories">Accessories</option>
+          </select>
+
+          <select
+            value={sort}
+            onChange={(e) =>
+              dispatch(setSort(e.target.value as "asc" | "desc"))
+            }
+            className="bg-surface2 border border-border px-3 py-2 rounded text-sm text-white"
+          >
+            <option value="asc">Price ↑</option>
+            <option value="desc">Price ↓</option>
+          </select>
         </div>
 
         {/* LIST */}
         <CatalogList
-          data={data || []}
+          data={processedData}
           isLoading={showLoading}
           isError={isError}
           onRetry={refetch}

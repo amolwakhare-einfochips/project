@@ -23,12 +23,11 @@ const renderPage = () => {
       <QueryClientProvider client={queryClient}>
         <Week1CatalogPage />
       </QueryClientProvider>
-    </Provider>
+    </Provider>,
   );
 };
 
 describe("Week1CatalogPage", () => {
-
   it("renders products after loading", async () => {
     renderPage();
 
@@ -45,7 +44,7 @@ describe("Week1CatalogPage", () => {
 
   it("renders error and retry button", async () => {
     server.use(
-      http.get("/api/products", () => new HttpResponse(null, { status: 500 }))
+      http.get("/api/products", () => new HttpResponse(null, { status: 500 })),
     );
 
     renderPage();
@@ -65,5 +64,4 @@ describe("Week1CatalogPage", () => {
 
     expect(screen.queryByText(/Wireless Mouse/i)).not.toBeInTheDocument();
   });
-
 });

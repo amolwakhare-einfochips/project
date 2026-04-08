@@ -32,9 +32,12 @@ const CatalogList = ({ data, isLoading, isError, onRetry }: Props) => {
   if (isError) {
     return (
       <div className="text-center text-red-400 py-10">
-        {t("catalog.error")}
-        <button onClick={onRetry} className="ml-3 px-3 py-1 border rounded">
-          {t("common.retry")}
+        {t("catalog.error", "Failed to load")}
+        <button
+          onClick={onRetry}
+          className="ml-3 px-3 py-1 border border-gray-500 rounded text-white"
+        >
+          {t("common.retry", "Retry")}
         </button>
       </div>
     );
@@ -42,7 +45,7 @@ const CatalogList = ({ data, isLoading, isError, onRetry }: Props) => {
 
   if (isLoading) {
     return (
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {Array.from({ length: 6 }).map((_, i) => (
           <ProductCardSkeleton key={i} />
         ))}
@@ -53,25 +56,25 @@ const CatalogList = ({ data, isLoading, isError, onRetry }: Props) => {
   if (!data || data.length === 0) {
     return (
       <div className="text-center text-gray-400 py-10">
-        {t("catalog.empty")}
+        {t("catalog.empty", "No products")}
       </div>
     );
   }
 
   return (
-    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {data.map((product) => (
         <div
           key={product.id}
-          className="bg-surface2 border border-border rounded-lg p-4"
+          className="bg-[#1e293b] border border-gray-700 rounded-lg p-4 hover:border-blue-500 transition"
         >
-          <div className="h-16 bg-[#1e2438] rounded mb-3 flex items-center justify-center text-2xl">
+          <div className="h-16 bg-[#111827] rounded mb-3 flex items-center justify-center text-2xl">
             {getIcon(product.category)}
           </div>
 
-          <h3 className="font-medium text-sm">{product.name}</h3>
+          <h3 className="font-medium text-sm text-white">{product.name}</h3>
 
-          <p className="text-accent text-sm font-mono">
+          <p className="text-blue-400 text-sm font-mono">
             ${product.price.toFixed(2)}
           </p>
 

@@ -1,17 +1,29 @@
 import { useQuery } from "@tanstack/react-query";
-import { getProducts } from "../../../shared/ui/api/products";
 
-export const useCatalogListQuery = () => {
-  const query = useQuery({
-    queryKey: ["catalog"],
-    queryFn: getProducts,
-    retry: false, //  testing error state
+type Params = {
+  search?: string;
+  category?: string;
+  sort?: "asc" | "desc";
+};
+
+export const useCatalogListQuery = (params: Params) => {
+  return useQuery({
+    queryKey: ["products", params],
+    queryFn: async () => {
+      const query = new URLSearchParams();
+
+      if (params.search) query.append("search", params.search);
+      if (params.category && params.category !== "all") {
+        query.append("category", params.category);
+      }
+      if (params.sort) query.append("sort", params.sort);
+
+      const res = await fetch(`/api/products?${query.toString()}`);
+
+      if (!res.ok) throw new Error("Failed to fetch");
+
+      return res.json();
+    },
+    retry: false,
   });
-
-  return {
-    data: query.data || [],
-    isLoading: query.isLoading,
-    isError: query.isError,
-    refetch: query.refetch,
-  };
 };

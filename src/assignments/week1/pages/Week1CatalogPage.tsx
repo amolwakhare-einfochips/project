@@ -16,7 +16,7 @@ const Week1CatalogPage = () => {
 
   const dispatch = useDispatch();
   const { search, category, sort } = useSelector(
-    (state: RootState) => state.ui,
+    (state: RootState) => state.ui
   );
 
   const { data, isLoading, isError, refetch } = useCatalogListQuery({
@@ -34,14 +34,14 @@ const Week1CatalogPage = () => {
 
   return (
     <ResponsivePageShell title="Catalog List">
-      <div className="w-full max-w-6xl mx-auto bg-[#0f172a] border border-gray-700 rounded-xl p-4 md:p-6">
-        {/* ✅ NAVBAR (LANGUAGE SWITCH) */}
+      <div className="w-full max-w-6xl mx-auto bg-[#0f172a] border border-gray-700 rounded-xl p-4 sm:p-5 md:p-6">
+
         <div className="flex justify-between items-center mb-4 border-b border-gray-700 pb-3">
-          <div className="flex items-center gap-2 text-blue-400 font-medium">
+          <div className="flex items-center gap-2 text-blue-400 font-medium text-sm sm:text-base">
             ⬡ Catalog
           </div>
 
-          <div className="flex items-center gap-3 text-sm">
+          <div className="flex items-center gap-2 text-sm">
             <button
               onClick={() => changeLanguage("en")}
               className={`hover:text-white ${
@@ -65,43 +65,45 @@ const Week1CatalogPage = () => {
         </div>
 
         {/* HEADER */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-          <h2 className="text-xl font-semibold text-white">
-            {t("catalog.pageTitle", "Product Catalog")}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <h2 className="text-lg sm:text-xl font-semibold text-white">
+            {t("catalog.pageTitle")}
           </h2>
 
           <button
             onClick={() => setOpenModal(true)}
-            className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm shadow"
+            className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm shadow"
           >
-            + {t("catalog.create", "Create Item")}
+            + {t("catalog.create")}
           </button>
         </div>
 
-        {/* TOOLBAR */}
-        <div className="flex flex-col md:flex-row gap-3 mb-6">
+        {/* TOOLBAR  */}
+        <div className="flex flex-col gap-3 mb-6">
+
           {/* SEARCH */}
           <input
             value={search}
             onChange={(e) => dispatch(setSearch(e.target.value))}
-            placeholder={t("catalog.search", "Search products...")}
-            className="w-full md:flex-1 bg-[#1e293b] border border-gray-600 rounded-md px-4 py-2 text-sm text-white placeholder-gray-400"
+            placeholder={t("catalog.search")}
+            className="w-full bg-[#1e293b] border border-gray-600 rounded-md px-4 py-2 text-sm text-white placeholder-gray-400"
           />
 
           {/* FILTER + SORT */}
-          <div className="flex gap-3 w-full md:w-auto">
+          <div className="flex flex-col sm:flex-row gap-3">
+
             <select
               value={category}
               onChange={(e) => dispatch(setCategory(e.target.value))}
-              className="flex-1 md:flex-none bg-[#1e293b] border border-gray-600 px-4 py-2 rounded-md text-sm text-white"
+              className="w-full sm:w-auto bg-[#1e293b] border border-gray-600 px-4 py-2 rounded-md text-sm text-white"
             >
-              <option value="all">{t("catalog.all", "All")}</option>
-              <option value="Audio">{t("catalog.audio", "Audio")}</option>
+              <option value="all">{t("catalog.all")}</option>
+              <option value="Audio">{t("catalog.audio")}</option>
               <option value="Peripherals">
-                {t("catalog.peripherals", "Peripherals")}
+                {t("catalog.peripherals")}
               </option>
               <option value="Accessories">
-                {t("catalog.accessories", "Accessories")}
+                {t("catalog.accessories")}
               </option>
             </select>
 
@@ -110,15 +112,16 @@ const Week1CatalogPage = () => {
               onChange={(e) =>
                 dispatch(setSort(e.target.value as "asc" | "desc"))
               }
-              className="flex-1 md:flex-none bg-[#1e293b] border border-gray-600 px-4 py-2 rounded-md text-sm text-white"
+              className="w-full sm:w-auto bg-[#1e293b] border border-gray-600 px-4 py-2 rounded-md text-sm text-white"
             >
-              <option value="asc">{t("catalog.priceAsc", "Price ↑")}</option>
-              <option value="desc">{t("catalog.priceDesc", "Price ↓")}</option>
+              <option value="asc">{t("catalog.priceAsc")}</option>
+              <option value="desc">{t("catalog.priceDesc")}</option>
             </select>
+
           </div>
         </div>
 
-        {/*  LIST */}
+        {/* LIST */}
         <CatalogList
           data={(data as Product[]) || []}
           isLoading={isLoading}

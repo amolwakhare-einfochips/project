@@ -22,7 +22,7 @@ export const handlers = [
     // SEARCH
     if (search) {
       data = data.filter((p) =>
-        p.name.toLowerCase().includes(search.toLowerCase())
+        p.name.toLowerCase().includes(search.toLowerCase()),
       );
     }
 
@@ -34,7 +34,7 @@ export const handlers = [
     // SORT
     if (sort) {
       data.sort((a, b) =>
-        sort === "asc" ? a.price - b.price : b.price - a.price
+        sort === "asc" ? a.price - b.price : b.price - a.price,
       );
     }
 
@@ -42,30 +42,44 @@ export const handlers = [
   }),
 
   // CREATE
-  http.post("/api/products", async ({ request }) => {
-    const body = (await request.json()) as Record<string, unknown>;
+http.post("/api/products", async ({ request }) => {
+  const body = (await request.json()) as any;
 
-    const newItem = {
-      id: Date.now(),
-      ...body,
-    } as typeof products[0];
-
-    products.push(newItem);
-
-    return HttpResponse.json(newItem);
-  }),
-
-  // UPDATE
-  http.put("/api/products/:id", async ({ params, request }) => {
-    const id = Number(params.id);
-    const body = (await request.json()) as Record<string, unknown>;
-
-    products = products.map((p) =>
-      p.id === id ? { ...p, ...body } : p
+  if (body.name === "Nano") {
+    return HttpResponse.json(
+      { fieldErrors: { name: "Name already exists" } },
+      { status: 422 }
     );
+  }
 
-    return HttpResponse.json(body);
-  }),
+  const newItem = {
+    id: Date.now(),
+    ...body,
+  };
+
+  products.push(newItem);
+
+  return HttpResponse.json(newItem);
+}),
+
+// UPDATE
+http.put("/api/products/:id", async ({ params, request }) => {
+  const id = Number(params.id);
+  const body = (await request.json()) as any;
+
+  if (body.name === "Nano") {
+    return HttpResponse.json(
+      { fieldErrors: { name: "Name already exists" } },
+      { status: 422 }
+    );
+  }
+
+  products = products.map((p) =>
+    p.id === id ? { ...p, ...body } : p
+  );
+
+  return HttpResponse.json(body);
+}),
 
   // DELETE
   http.delete("/api/products/:id", ({ params }) => {

@@ -21,46 +21,34 @@ export const useUpdateCatalogItemMutation = () => {
         body: JSON.stringify(data),
       });
 
-      if (data.name === "fail") {
-        throw new Error("Simulated failure");
-      }
-
       if (!res.ok) {
-        throw new Error("Update failed");
+        const error = await res.json();
+        throw error;
       }
 
-      return res.json() as Promise<Product>;
+      return res.json();
     },
 
     onMutate: async (newData) => {
       await queryClient.cancelQueries({ queryKey: ["products"] });
 
-      const previousData = queryClient.getQueryData<Product[]>(["products"]);
+      const previous = queryClient.getQueryData<Product[]>(["products"]);
 
       queryClient.setQueryData<Product[]>(["products"], (old = []) =>
         old.map((p) =>
-          p.id === newData.id
-            ? { ...p, ...newData, isSaving: true }
-            : p
+          p.id === newData.id ? { ...p, ...newData } : p
         )
       );
 
-      return { previousData };
+      return { previous };
     },
 
-    onError: (_err, _newData, context) => {
-      if (context?.previousData) {
-        queryClient.setQueryData(["products"], context.previousData);
+    onError: (_err, _vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(["products"], context.previous);
       }
     },
 
-    onSuccess: (updated) => {
-      queryClient.setQueryData<Product[]>(["products"], (old = []) =>
-        old.map((p) =>
-          p.id === updated.id ? { ...updated, isSaving: false } : p
-        )
-      );
-    },
 
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });

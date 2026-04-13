@@ -1,94 +1,90 @@
-import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { useCreateProduct } from "../hooks/useCreateProduct";
 
-type Props = {
-  onClose: () => void;
+// type ApiError = {
+//   fieldErrors?: Record<string, string>;
+// };
+
+type FormData = {
+  name: string;
+  price: number;
+  category: string;
 };
 
-const CreateProductModal = ({ onClose }: Props) => {
+const CreateProductModal = ({ onClose }: { onClose: () => void }) => {
   const { mutate, isPending } = useCreateProduct();
 
-  const [form, setForm] = useState({
-    name: "",
-    price: "",
-    category: "Peripherals",
-  });
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = useForm<FormData>();
 
-  const handleSubmit = () => {
-    mutate(
-      {
-        ...form,
-        price: Number(form.price),
-      },
-      {
-        onSuccess: () => {
-          onClose();
-        },
-      },
-    );
+  const onSubmit = (data: FormData) => {
+    mutate(data, {
+      onSuccess: onClose,
+
+      onError: (err: unknown) => {
+        const error = err as { fieldErrors?: Record<string, string> };
+
+        if (error?.fieldErrors) {
+          Object.entries(error.fieldErrors).forEach(([field, message]) => {
+            setError(field as keyof FormData, {
+              message,
+            });
+          });
+        }
+      }
+    });
   };
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
       <div className="bg-[#0f172a] p-6 rounded-lg w-full max-w-md border border-gray-700">
-
         <h2 className="text-lg mb-4 text-white font-semibold">
           Create Product
         </h2>
 
-        {/* NAME */}
-        <input
-          placeholder="Name"
-          className="w-full mb-3 p-2 rounded bg-[#1e293b] border border-gray-600 text-white placeholder-gray-400 outline-none"
-          value={form.name}
-          onChange={(e) =>
-            setForm({ ...form, name: e.target.value })
-          }
-        />
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <input
+            {...register("name", { required: "Name required" })}
+            placeholder="Name"
+            className="w-full mb-1 p-2 bg-[#1e293b] text-white rounded"
+          />
+          {errors.name && <p className="text-red-400">{errors.name.message}</p>}
 
-        {/* PRICE */}
-        <input
-          placeholder="Price"
-          type="number"
-          className="w-full mb-3 p-2 rounded bg-[#1e293b] border border-gray-600 text-white placeholder-gray-400 outline-none"
-          value={form.price}
-          onChange={(e) =>
-            setForm({ ...form, price: e.target.value })
-          }
-        />
+          <input
+            {...register("price", { required: "Price required" })}
+            type="number"
+            placeholder="Price"
+            className="w-full mb-1 p-2 bg-[#1e293b] text-white rounded"
+          />
+          {errors.price && <p className="text-red-400">{errors.price.message}</p>}
 
-        {/* CATEGORY */}
-        <select
-          className="w-full mb-4 p-2 rounded bg-[#1e293b] border border-gray-600 text-white"
-          value={form.category}
-          onChange={(e) =>
-            setForm({ ...form, category: e.target.value })
-          }
-        >
-          <option>Peripherals</option>
-          <option>Audio</option>
-          <option>Accessories</option>
-        </select>
-
-        {/* ACTIONS */}
-        <div className="flex justify-end gap-3">
-
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-white"
+          <select
+            {...register("category")}
+            className="w-full mb-4 p-2 bg-[#1e293b] text-white rounded"
           >
-            Cancel
-          </button>
+            <option>Peripherals</option>
+            <option>Audio</option>
+            <option>Accessories</option>
+          </select>
 
-          <button
-            onClick={handleSubmit}
-            disabled={isPending}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-          >
-            {isPending ? "Creating..." : "Create"}
-          </button>
+          <div className="flex justify-end gap-3">
+            <button type="button" onClick={onClose}>
+              Cancel
+            </button>
 
-        </div>
+            <button
+              type="submit"
+              disabled={isPending}
+              className="bg-blue-600 px-4 py-2 rounded text-white"
+            >
+              {isPending ? "Creating..." : "Create"}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

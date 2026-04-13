@@ -1,6 +1,25 @@
 import { http, HttpResponse } from "msw";
 
-let products = [
+//  TYPES
+type Product = {
+  id: number;
+  name: string;
+  price: number;
+  category: string;
+};
+
+type ProductInput = {
+  name: string;
+  price: number;
+  category: string;
+};
+
+type ApiError = {
+  fieldErrors?: Record<string, string>;
+};
+
+// MOCK DB
+let products: Product[] = [
   { id: 1, name: "Wireless Mouse", price: 29.99, category: "Peripherals" },
   { id: 2, name: "Mech Keyboard", price: 89.0, category: "Peripherals" },
   { id: 3, name: "Headset Pro", price: 59.0, category: "Audio" },
@@ -10,6 +29,7 @@ let products = [
 ];
 
 export const handlers = [
+  //  GET PRODUCTS
   http.get("/api/products", ({ request }) => {
     const url = new URL(request.url);
 
@@ -41,35 +61,65 @@ export const handlers = [
     return HttpResponse.json(data);
   }),
 
-  // CREATE
+  // CREATE PRODUCT
   http.post("/api/products", async ({ request }) => {
-    const body = (await request.json()) as Record<string, unknown>;
+    const body = (await request.json()) as ProductInput;
 
-    const newItem = {
+    // VALIDATION ERROR
+    if (body.name === "Nano") {
+      const error: ApiError = {
+        fieldErrors: { name: "Name already exists" },
+      };
+      return HttpResponse.json(error, { status: 422 });
+    }
+
+    const newItem: Product = {
       id: Date.now(),
       ...body,
-    } as typeof products[0];
+    };
 
     products.push(newItem);
 
     return HttpResponse.json(newItem);
   }),
 
-  // UPDATE
+  //  UPDATE PRODUCT
   http.put("/api/products/:id", async ({ params, request }) => {
     const id = Number(params.id);
-    const body = (await request.json()) as Record<string, unknown>;
+    const body = (await request.json()) as ProductInput;
 
-    products = products.map((p) =>
-      p.id === id ? { ...p, ...body } : p
-    );
+    // VALIDATION ERROR
+    if (body.name === "Nano") {
+      const error: ApiError = {
+        fieldErrors: { name: "Name already exists" },
+      };
+      return HttpResponse.json(error, { status: 422 });
+    }
 
-    return HttpResponse.json(body);
+    let updatedItem: Product | null = null;
+
+    products = products.map((p) => {
+      if (p.id === id) {
+        updatedItem = { ...p, ...body };
+        return updatedItem;
+      }
+      return p;
+    });
+
+    return HttpResponse.json(updatedItem);
   }),
 
-  // DELETE
+  // DELETE PRODUCT
   http.delete("/api/products/:id", ({ params }) => {
     const id = Number(params.id);
+
+    // ❌ FAILURE CASE (simulate server error)
+    if (id === 4) {
+      return HttpResponse.json(
+        { message: "Delete failed" },
+        { status: 500 }
+      );
+    }
 
     products = products.filter((p) => p.id !== id);
 

@@ -1,17 +1,17 @@
 const ProductCardSkeleton = () => {
   return (
-    <div className="bg-surface2 border border-border rounded-lg p-4 animate-pulse">
-      {/* Image */}
-      <div className="h-16 bg-[#1e2438] rounded mb-3" />
+    <div className="bg-[#1e293b] border border-gray-700 rounded-lg p-4 animate-pulse">
+      {/* IMAGE */}
+      <div className="h-24 bg-gray-700/50 rounded mb-3" />
 
-      {/* Name */}
-      <div className="h-3 bg-gray-600 rounded w-3/4 mb-2" />
+      {/* TITLE */}
+      <div className="h-4 bg-gray-600/50 rounded w-3/4 mb-2" />
 
-      {/* Price */}
-      <div className="h-3 bg-gray-700 rounded w-1/3 mb-2" />
+      {/* PRICE */}
+      <div className="h-4 bg-gray-600/50 rounded w-1/2 mb-2" />
 
-      {/* Category */}
-      <div className="h-2 bg-gray-700 rounded w-1/2" />
+      {/* CATEGORY */}
+      <div className="h-3 bg-gray-700/50 rounded w-1/3" />
     </div>
   );
 };

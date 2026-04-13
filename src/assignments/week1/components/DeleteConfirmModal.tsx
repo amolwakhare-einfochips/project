@@ -12,7 +12,6 @@ const DeleteConfirmModal = ({ productName, onCancel, onConfirm }: Props) => {
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
       <div className="bg-[#0f172a] border border-red-500 rounded-xl p-6 w-[350px] text-center">
-
         <div className="text-4xl mb-3">🗑️</div>
 
         <h2 className="text-white text-lg font-semibold mb-2">

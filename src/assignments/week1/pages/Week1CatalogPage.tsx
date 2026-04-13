@@ -16,7 +16,7 @@ const Week1CatalogPage = () => {
 
   const dispatch = useDispatch();
   const { search, category, sort } = useSelector(
-    (state: RootState) => state.ui
+    (state: RootState) => state.ui,
   );
 
   const { data, isLoading, isError, refetch } = useCatalogListQuery({
@@ -35,7 +35,6 @@ const Week1CatalogPage = () => {
   return (
     <ResponsivePageShell title="Catalog List">
       <div className="w-full max-w-6xl mx-auto bg-[#0f172a] border border-gray-700 rounded-xl p-4 sm:p-5 md:p-6">
-
         <div className="flex justify-between items-center mb-4 border-b border-gray-700 pb-3">
           <div className="flex items-center gap-2 text-blue-400 font-medium text-sm sm:text-base">
             ⬡ Catalog
@@ -80,7 +79,6 @@ const Week1CatalogPage = () => {
 
         {/* TOOLBAR  */}
         <div className="flex flex-col gap-3 mb-6">
-
           {/* SEARCH */}
           <input
             value={search}
@@ -91,7 +89,6 @@ const Week1CatalogPage = () => {
 
           {/* FILTER + SORT */}
           <div className="flex flex-col sm:flex-row gap-3">
-
             <select
               value={category}
               onChange={(e) => dispatch(setCategory(e.target.value))}
@@ -99,12 +96,8 @@ const Week1CatalogPage = () => {
             >
               <option value="all">{t("catalog.all")}</option>
               <option value="Audio">{t("catalog.audio")}</option>
-              <option value="Peripherals">
-                {t("catalog.peripherals")}
-              </option>
-              <option value="Accessories">
-                {t("catalog.accessories")}
-              </option>
+              <option value="Peripherals">{t("catalog.peripherals")}</option>
+              <option value="Accessories">{t("catalog.accessories")}</option>
             </select>
 
             <select
@@ -117,7 +110,6 @@ const Week1CatalogPage = () => {
               <option value="asc">{t("catalog.priceAsc")}</option>
               <option value="desc">{t("catalog.priceDesc")}</option>
             </select>
-
           </div>
         </div>
 

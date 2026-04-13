@@ -1,6 +1,25 @@
 import { http, HttpResponse } from "msw";
 
-let products = [
+//  TYPES
+type Product = {
+  id: number;
+  name: string;
+  price: number;
+  category: string;
+};
+
+type ProductInput = {
+  name: string;
+  price: number;
+  category: string;
+};
+
+type ApiError = {
+  fieldErrors?: Record<string, string>;
+};
+
+// MOCK DB
+let products: Product[] = [
   { id: 1, name: "Wireless Mouse", price: 29.99, category: "Peripherals" },
   { id: 2, name: "Mech Keyboard", price: 89.0, category: "Peripherals" },
   { id: 3, name: "Headset Pro", price: 59.0, category: "Audio" },
@@ -10,6 +29,7 @@ let products = [
 ];
 
 export const handlers = [
+  //  GET PRODUCTS
   http.get("/api/products", ({ request }) => {
     const url = new URL(request.url);
 
@@ -22,7 +42,7 @@ export const handlers = [
     // SEARCH
     if (search) {
       data = data.filter((p) =>
-        p.name.toLowerCase().includes(search.toLowerCase()),
+        p.name.toLowerCase().includes(search.toLowerCase())
       );
     }
 
@@ -34,56 +54,72 @@ export const handlers = [
     // SORT
     if (sort) {
       data.sort((a, b) =>
-        sort === "asc" ? a.price - b.price : b.price - a.price,
+        sort === "asc" ? a.price - b.price : b.price - a.price
       );
     }
 
     return HttpResponse.json(data);
   }),
 
-  // CREATE
-http.post("/api/products", async ({ request }) => {
-  const body = (await request.json()) as any;
+  // CREATE PRODUCT
+  http.post("/api/products", async ({ request }) => {
+    const body = (await request.json()) as ProductInput;
 
-  if (body.name === "Nano") {
-    return HttpResponse.json(
-      { fieldErrors: { name: "Name already exists" } },
-      { status: 422 }
-    );
-  }
+    // VALIDATION ERROR
+    if (body.name === "Nano") {
+      const error: ApiError = {
+        fieldErrors: { name: "Name already exists" },
+      };
+      return HttpResponse.json(error, { status: 422 });
+    }
 
-  const newItem = {
-    id: Date.now(),
-    ...body,
-  };
+    const newItem: Product = {
+      id: Date.now(),
+      ...body,
+    };
 
-  products.push(newItem);
+    products.push(newItem);
 
-  return HttpResponse.json(newItem);
-}),
+    return HttpResponse.json(newItem);
+  }),
 
-// UPDATE
-http.put("/api/products/:id", async ({ params, request }) => {
-  const id = Number(params.id);
-  const body = (await request.json()) as any;
+  //  UPDATE PRODUCT
+  http.put("/api/products/:id", async ({ params, request }) => {
+    const id = Number(params.id);
+    const body = (await request.json()) as ProductInput;
 
-  if (body.name === "Nano") {
-    return HttpResponse.json(
-      { fieldErrors: { name: "Name already exists" } },
-      { status: 422 }
-    );
-  }
+    // VALIDATION ERROR
+    if (body.name === "Nano") {
+      const error: ApiError = {
+        fieldErrors: { name: "Name already exists" },
+      };
+      return HttpResponse.json(error, { status: 422 });
+    }
 
-  products = products.map((p) =>
-    p.id === id ? { ...p, ...body } : p
-  );
+    let updatedItem: Product | null = null;
 
-  return HttpResponse.json(body);
-}),
+    products = products.map((p) => {
+      if (p.id === id) {
+        updatedItem = { ...p, ...body };
+        return updatedItem;
+      }
+      return p;
+    });
 
-  // DELETE
+    return HttpResponse.json(updatedItem);
+  }),
+
+  // DELETE PRODUCT
   http.delete("/api/products/:id", ({ params }) => {
     const id = Number(params.id);
+
+    // ❌ FAILURE CASE (simulate server error)
+    if (id === 4) {
+      return HttpResponse.json(
+        { message: "Delete failed" },
+        { status: 500 }
+      );
+    }
 
     products = products.filter((p) => p.id !== id);
 

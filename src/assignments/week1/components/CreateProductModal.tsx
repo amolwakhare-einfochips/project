@@ -1,9 +1,9 @@
 import { useForm } from "react-hook-form";
 import { useCreateProduct } from "../hooks/useCreateProduct";
 
-type ApiError = {
-  fieldErrors?: Record<string, string>;
-};
+// type ApiError = {
+//   fieldErrors?: Record<string, string>;
+// };
 
 type FormData = {
   name: string;

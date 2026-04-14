@@ -36,10 +36,8 @@ const EditProductModal = ({ product, onClose }: Props) => {
 
   useEffect(() => {
     if (!nameValue || nameValue === product.name) return;
-
-    setChecking(true);
-
     const timeout = setTimeout(() => {
+      setChecking(true);
       if (nameValue.toLowerCase() === "nano") {
         setError("name", {
           message: t("errors.duplicateName"),
@@ -106,9 +104,8 @@ const EditProductModal = ({ product, onClose }: Props) => {
               {...register("name", {
                 required: t("errors.nameRequired"),
               })}
-              className={`w-full mt-1 px-3 py-2 rounded bg-[#1e293b] text-white border ${
-                errors.name ? "border-red-500" : "border-gray-600"
-              }`}
+              className={`w-full mt-1 px-3 py-2 rounded bg-[#1e293b] text-white border ${errors.name ? "border-red-500" : "border-gray-600"
+                }`}
             />
 
             {checking && !errors.name && (
@@ -142,9 +139,8 @@ const EditProductModal = ({ product, onClose }: Props) => {
                   message: t("errors.priceMin"),
                 },
               })}
-              className={`w-full mt-1 px-3 py-2 rounded bg-[#1e293b] text-white border ${
-                errors.price ? "border-red-500" : "border-gray-600"
-              }`}
+              className={`w-full mt-1 px-3 py-2 rounded bg-[#1e293b] text-white border ${errors.price ? "border-red-500" : "border-gray-600"
+                }`}
             />
 
             {errors.price && (

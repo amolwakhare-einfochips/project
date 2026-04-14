@@ -15,26 +15,37 @@ export const useDeleteCatalogItemMutation = () => {
       return id;
     },
 
-    onMutate: async (id) => {
+    onMutate: async (id: number) => {
       await queryClient.cancelQueries({ queryKey: ["products"] });
 
-      const previous = queryClient.getQueryData<Product[]>(["products"]);
+      const queries = queryClient.getQueriesData<Product[]>({
+        queryKey: ["products"],
+      });
 
-      queryClient.setQueryData<Product[]>(["products"], (old = []) =>
-        old.filter((p) => p.id !== id)
-      );
+      const previous = queries;
+
+      queries.forEach(([key, data]) => {
+        queryClient.setQueryData<Product[]>(key, (old = []) =>
+          old.filter((p) => p.id !== id)
+        );
+      });
 
       return { previous };
     },
 
     onError: (_err, _id, context) => {
       if (context?.previous) {
-        queryClient.setQueryData(["products"], context.previous);
+        context.previous.forEach(([key, data]) => {
+          queryClient.setQueryData(key, data);
+        });
       }
     },
 
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({
+        queryKey: ["products"],
+        exact: false, 
+      });
     },
   });
 };

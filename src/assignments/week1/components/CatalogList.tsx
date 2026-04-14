@@ -40,10 +40,14 @@ const CatalogList = ({ data, isLoading, isError, onRetry }: Props) => {
   const [deleteItem, setDeleteItem] = useState<Product | null>(null);
 
   const handleDeleteConfirm = () => {
-    if (!deleteItem) return;
-    deleteMutation.mutate(deleteItem.id);
-    setDeleteItem(null);
-  };
+  if (!deleteItem) return;
+
+  console.log("Deleting ID:", deleteItem.id); 
+
+  deleteMutation.mutate(Number(deleteItem.id)); 
+
+  setDeleteItem(null);
+};
 
   if (isError) {
   return (

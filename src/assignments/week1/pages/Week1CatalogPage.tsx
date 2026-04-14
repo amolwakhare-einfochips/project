@@ -19,7 +19,7 @@ const Week1CatalogPage = () => {
     (state: RootState) => state.ui,
   );
 
-  const { data, isLoading, isError, refetch } = useCatalogListQuery({
+  const { data, isLoading, isError, refetch, isFetching } = useCatalogListQuery({
     search,
     category,
     sort,
@@ -43,9 +43,8 @@ const Week1CatalogPage = () => {
           <div className="flex items-center gap-2 text-sm">
             <button
               onClick={() => changeLanguage("en")}
-              className={`hover:text-white ${
-                i18n.language === "en" ? "text-white" : "text-gray-400"
-              }`}
+              className={`hover:text-white ${i18n.language === "en" ? "text-white" : "text-gray-400"
+                }`}
             >
               EN
             </button>
@@ -54,9 +53,8 @@ const Week1CatalogPage = () => {
 
             <button
               onClick={() => changeLanguage("es")}
-              className={`hover:text-white ${
-                i18n.language === "es" ? "text-white" : "text-gray-400"
-              }`}
+              className={`hover:text-white ${i18n.language === "es" ? "text-white" : "text-gray-400"
+                }`}
             >
               ES
             </button>
@@ -116,11 +114,10 @@ const Week1CatalogPage = () => {
         {/* LIST */}
         <CatalogList
           data={(data as Product[]) || []}
-          isLoading={isLoading}
+          isLoading={isLoading || isFetching}
           isError={isError}
           onRetry={refetch}
         />
-
         {/* MODAL */}
         {openModal && (
           <CreateProductModal onClose={() => setOpenModal(false)} />

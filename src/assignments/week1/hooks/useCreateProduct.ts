@@ -7,6 +7,10 @@ type CreateProductInput = {
   category: string;
 };
 
+type ApiError = Error & {
+  fieldErrors?: Record<string, string>;
+};
+
 export const useCreateProduct = () => {
   const queryClient = useQueryClient();
 
@@ -20,7 +24,14 @@ export const useCreateProduct = () => {
         body: JSON.stringify(newProduct),
       });
 
-      if (!res.ok) throw new Error("Failed to create product");
+      if (!res.ok) {
+        const errorData = await res.json();
+
+        const error: ApiError = new Error("Create failed");
+        error.fieldErrors = errorData.fieldErrors;
+
+        throw error; 
+      }
 
       return res.json() as Promise<Product>;
     },

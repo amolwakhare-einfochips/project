@@ -128,18 +128,22 @@ export const handlers = [
 
   // DELETE PRODUCT
   http.delete("/api/products/:id", ({ params }) => {
-    const id = Number(params.id);
+  const id = Number(params.id);
 
-    //  FAILURE CASE 
-    if (id === 4) {
-      return HttpResponse.json(
-        { message: "Delete failed" },
-        { status: 500 }
-      );
-    }
+  console.log("MSW DELETE ID:", id); 
 
-    products = products.filter((p) => p.id !== id);
+  const exists = products.some((p) => p.id === id);
 
-    return HttpResponse.json({ success: true });
-  }),
+  if (!exists) {
+    return HttpResponse.json(
+      { message: "Item not found" },
+      { status: 404 }
+    );
+  }
+
+  products = products.filter((p) => p.id !== id);
+
+  return HttpResponse.json({ success: true }, { status: 200 });
+})
+
 ];

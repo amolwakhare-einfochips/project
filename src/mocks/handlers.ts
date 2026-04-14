@@ -1,6 +1,6 @@
 import { http, HttpResponse } from "msw";
 
-//  TYPES
+// TYPES
 type Product = {
   id: number;
   name: string;
@@ -16,6 +16,7 @@ type ProductInput = {
 
 type ApiError = {
   fieldErrors?: Record<string, string>;
+  message?: string;
 };
 
 // MOCK DB
@@ -29,7 +30,7 @@ let products: Product[] = [
 ];
 
 export const handlers = [
-  //  GET PRODUCTS
+  // GET PRODUCTS
   http.get("/api/products", ({ request }) => {
     const url = new URL(request.url);
 
@@ -65,11 +66,18 @@ export const handlers = [
   http.post("/api/products", async ({ request }) => {
     const body = (await request.json()) as ProductInput;
 
-    // VALIDATION ERROR
-    if (body.name === "Nano") {
+    //  DUPLICATE VALIDATION
+    const isDuplicate = products.some(
+      (p) => p.name.toLowerCase() === body.name.toLowerCase()
+    );
+
+    if (isDuplicate) {
       const error: ApiError = {
-        fieldErrors: { name: "Name already exists" },
+        fieldErrors: {
+          name: "Name already exists",
+        },
       };
+
       return HttpResponse.json(error, { status: 422 });
     }
 
@@ -88,11 +96,20 @@ export const handlers = [
     const id = Number(params.id);
     const body = (await request.json()) as ProductInput;
 
-    // VALIDATION ERROR
-    if (body.name === "Nano") {
+    // DUPLICATE VALIDATION 
+    const isDuplicate = products.some(
+      (p) =>
+        p.name.toLowerCase() === body.name.toLowerCase() &&
+        p.id !== id
+    );
+
+    if (isDuplicate) {
       const error: ApiError = {
-        fieldErrors: { name: "Name already exists" },
+        fieldErrors: {
+          name: "Name already exists",
+        },
       };
+
       return HttpResponse.json(error, { status: 422 });
     }
 
@@ -113,7 +130,7 @@ export const handlers = [
   http.delete("/api/products/:id", ({ params }) => {
     const id = Number(params.id);
 
-    // ❌ FAILURE CASE (simulate server error)
+    //  FAILURE CASE 
     if (id === 4) {
       return HttpResponse.json(
         { message: "Delete failed" },

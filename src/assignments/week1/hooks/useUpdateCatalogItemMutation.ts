@@ -8,6 +8,10 @@ type UpdateInput = {
   category: string;
 };
 
+type ApiError = Error & {
+  fieldErrors?: Record<string, string>;
+};
+
 export const useUpdateCatalogItemMutation = () => {
   const queryClient = useQueryClient();
 
@@ -22,8 +26,12 @@ export const useUpdateCatalogItemMutation = () => {
       });
 
       if (!res.ok) {
-        const error = await res.json();
-        throw error;
+        const errorData = await res.json();
+
+        const error: ApiError = new Error("Update failed");
+        error.fieldErrors = errorData.fieldErrors;
+
+        throw error; 
       }
 
       return res.json();
@@ -36,7 +44,9 @@ export const useUpdateCatalogItemMutation = () => {
 
       queryClient.setQueryData<Product[]>(["products"], (old = []) =>
         old.map((p) =>
-          p.id === newData.id ? { ...p, ...newData } : p
+          p.id === newData.id
+            ? { ...p, ...newData, isSaving: true }
+            : p
         )
       );
 
@@ -49,6 +59,11 @@ export const useUpdateCatalogItemMutation = () => {
       }
     },
 
+    onSuccess: () => {
+      queryClient.setQueryData<Product[]>(["products"], (old = []) =>
+        old.map((p) => ({ ...p, isSaving: false }))
+      );
+    },
 
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });

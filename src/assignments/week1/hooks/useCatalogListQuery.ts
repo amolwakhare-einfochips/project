@@ -9,6 +9,7 @@ type Params = {
 export const useCatalogListQuery = (params: Params) => {
   return useQuery({
     queryKey: ["products", params],
+
     queryFn: async () => {
       const query = new URLSearchParams();
 
@@ -20,10 +21,14 @@ export const useCatalogListQuery = (params: Params) => {
 
       const res = await fetch(`/api/products?${query.toString()}`);
 
-      if (!res.ok) throw new Error("Failed to fetch");
+      if (!res.ok) {
+        throw new Error("Failed to fetch");
+      }
 
       return res.json();
     },
+
     retry: false,
+    refetchOnWindowFocus: false, 
   });
 };

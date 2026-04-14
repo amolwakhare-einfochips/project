@@ -46,15 +46,19 @@ const CatalogList = ({ data, isLoading, isError, onRetry }: Props) => {
   };
 
   if (isError) {
-    return (
-      <div className="text-center text-red-400 py-10">
-        {t("catalog.error")}
-        <button onClick={onRetry} className="ml-3 px-3 py-1 border rounded">
-          {t("common.retry")}
-        </button>
-      </div>
-    );
-  }
+  return (
+    <div className="text-center text-red-400 py-10">
+      <span>{t("catalog.error")}</span>
+
+      <button
+        onClick={onRetry}
+        className="ml-3 px-3 py-1 border border-gray-500 rounded text-sm hover:bg-gray-700"
+      >
+        {t("common.retry")}
+      </button>
+    </div>
+  );
+}
 
   if (isLoading) {
     return (
@@ -68,7 +72,9 @@ const CatalogList = ({ data, isLoading, isError, onRetry }: Props) => {
 
   if (!data.length) {
     return (
-      <div className="text-center text-gray-400">{t("catalog.empty")}</div>
+      <div className="text-center text-gray-400">
+        {t("catalog.empty")}
+      </div>
     );
   }
 
@@ -78,7 +84,7 @@ const CatalogList = ({ data, isLoading, isError, onRetry }: Props) => {
         {data.map((product) => (
           <div
             key={product.id}
-            className="bg-[#1e293b] border border-gray-700 rounded-lg p-4 hover:border-blue-500"
+            className="bg-[#1e293b] border border-gray-700 rounded-lg p-4 hover:border-blue-500 transition"
           >
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="flex items-center gap-3">
@@ -96,7 +102,7 @@ const CatalogList = ({ data, isLoading, isError, onRetry }: Props) => {
 
                     {product.isSaving && (
                       <span className="ml-2 text-xs bg-blue-900 text-blue-300 px-2 py-0.5 rounded">
-                        Saving...
+                        {t("catalog.saving", "Saving...")}
                       </span>
                     )}
                   </p>
@@ -105,14 +111,14 @@ const CatalogList = ({ data, isLoading, isError, onRetry }: Props) => {
               <div className="flex gap-2 justify-end sm:justify-normal">
                 <button
                   onClick={() => setEditItem(product)}
-                  className="text-xs px-3 py-1 border border-gray-600 rounded text-gray-300 hover:text-white"
+                  className="text-xs px-3 py-1 border border-gray-600 rounded text-gray-300 hover:text-white hover:border-gray-400"
                 >
                   {t("catalog.edit")}
                 </button>
 
                 <button
                   onClick={() => setDeleteItem(product)}
-                  className="text-xs px-3 py-1 bg-red-600 rounded text-white"
+                  className="text-xs px-3 py-1 bg-red-600 rounded text-white hover:bg-red-700"
                 >
                   {t("catalog.delete")}
                 </button>

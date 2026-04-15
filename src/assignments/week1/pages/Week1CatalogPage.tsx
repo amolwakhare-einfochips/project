@@ -19,11 +19,11 @@ const Week1CatalogPage = () => {
     (state: RootState) => state.ui,
   );
 
-  const { data, isLoading, isError, refetch, isFetching } = useCatalogListQuery({
-    search,
-    category,
-    sort,
-  });
+  const { data, isLoading, isError, refetch, isFetching } =
+    useCatalogListQuery({
+      category,
+      sort,
+    });
 
   const [openModal, setOpenModal] = useState(false);
 
@@ -32,9 +32,14 @@ const Week1CatalogPage = () => {
     localStorage.setItem("lang", lang);
   };
 
+  const filteredData = (data as Product[] | undefined)?.filter((product) =>
+    product.name.toLowerCase().includes(search.toLowerCase()),
+  );
+
   return (
     <ResponsivePageShell title="Catalog List">
       <div className="w-full max-w-6xl mx-auto bg-[#0f172a] border border-gray-700 rounded-xl p-4 sm:p-5 md:p-6">
+        
         <div className="flex justify-between items-center mb-4 border-b border-gray-700 pb-3">
           <div className="flex items-center gap-2 text-blue-400 font-medium text-sm sm:text-base">
             ⬡ Catalog
@@ -43,8 +48,9 @@ const Week1CatalogPage = () => {
           <div className="flex items-center gap-2 text-sm">
             <button
               onClick={() => changeLanguage("en")}
-              className={`hover:text-white ${i18n.language === "en" ? "text-white" : "text-gray-400"
-                }`}
+              className={`hover:text-white ${
+                i18n.language === "en" ? "text-white" : "text-gray-400"
+              }`}
             >
               EN
             </button>
@@ -53,15 +59,16 @@ const Week1CatalogPage = () => {
 
             <button
               onClick={() => changeLanguage("es")}
-              className={`hover:text-white ${i18n.language === "es" ? "text-white" : "text-gray-400"
-                }`}
+              className={`hover:text-white ${
+                i18n.language === "es" ? "text-white" : "text-gray-400"
+              }`}
             >
               ES
             </button>
           </div>
         </div>
 
-        {/* HEADER */}
+        {/* TITLE */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <h2 className="text-lg sm:text-xl font-semibold text-white">
             {t("catalog.pageTitle")}
@@ -75,7 +82,7 @@ const Week1CatalogPage = () => {
           </button>
         </div>
 
-        {/* TOOLBAR  */}
+        {/* TOOLBAR */}
         <div className="flex flex-col gap-3 mb-6">
           {/* SEARCH */}
           <input
@@ -113,11 +120,12 @@ const Week1CatalogPage = () => {
 
         {/* LIST */}
         <CatalogList
-          data={(data as Product[]) || []}
+          data={filteredData || []}   // ✅ USE FILTERED DATA
           isLoading={isLoading || isFetching}
           isError={isError}
           onRetry={refetch}
         />
+
         {/* MODAL */}
         {openModal && (
           <CreateProductModal onClose={() => setOpenModal(false)} />

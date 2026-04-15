@@ -23,38 +23,73 @@ const renderPage = () => {
       <QueryClientProvider client={queryClient}>
         <Week1CatalogPage />
       </QueryClientProvider>
-    </Provider>,
+    </Provider>
   );
 };
 
 describe("Week1CatalogPage", () => {
   it("renders products after loading", async () => {
-    renderPage();
-
-    await screen.findByText(/Wireless Mouse/i);
-  });
-
-  it("renders empty state", async () => {
-    server.use(http.get("/api/products", () => HttpResponse.json([])));
-
-    renderPage();
-
-    await screen.findByText(/No products/i);
-  });
-
-  it("renders error and retry button", async () => {
     server.use(
-      http.get("/api/products", () => new HttpResponse(null, { status: 500 })),
+      http.get("/api/products", () =>
+        HttpResponse.json([
+          {
+            id: 1,
+            name: "Wireless Mouse",
+            price: 29.99,
+            category: "Peripherals",
+          },
+        ])
+      )
     );
 
     renderPage();
 
-    await screen.findByText(/Failed/i);
+    expect(await screen.findByText(/Wireless Mouse/i)).toBeInTheDocument();
+  });
+
+  it("renders empty state", async () => {
+    server.use(
+      http.get("/api/products", () => HttpResponse.json([]))
+    );
+
+    renderPage();
+
+    expect(await screen.findByText(/No products/i)).toBeInTheDocument();
+  });
+
+  it("renders error and retry button", async () => {
+    server.use(
+      http.get("/api/products", () =>
+        new HttpResponse(null, { status: 500 })
+      )
+    );
+
+    renderPage();
+
+    expect(await screen.findByText(/Failed/i)).toBeInTheDocument();
     expect(screen.getByText(/Retry/i)).toBeInTheDocument();
   });
 
-  //  FILTER TEST
   it("filters products without API refetch", async () => {
+    server.use(
+      http.get("/api/products", () =>
+        HttpResponse.json([
+          {
+            id: 1,
+            name: "Wireless Mouse",
+            price: 29.99,
+            category: "Peripherals",
+          },
+          {
+            id: 2,
+            name: "Mech Keyboard",
+            price: 89.0,
+            category: "Peripherals",
+          },
+        ])
+      )
+    );
+
     renderPage();
 
     await screen.findByText(/Wireless Mouse/i);
@@ -62,6 +97,8 @@ describe("Week1CatalogPage", () => {
     const input = screen.getByPlaceholderText(/search/i);
     await userEvent.type(input, "keyboard");
 
-    expect(screen.queryByText(/Wireless Mouse/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/Wireless Mouse/i)
+    ).not.toBeInTheDocument();
   });
 });

@@ -40,29 +40,43 @@ const CatalogList = ({ data, isLoading, isError, onRetry }: Props) => {
   const [deleteItem, setDeleteItem] = useState<Product | null>(null);
 
   const handleDeleteConfirm = () => {
-  if (!deleteItem) return;
+    if (!deleteItem) return;
 
-  console.log("Deleting ID:", deleteItem.id); 
+    console.log("Deleting ID:", deleteItem.id);
 
-  deleteMutation.mutate(Number(deleteItem.id)); 
+    deleteMutation.mutate(Number(deleteItem.id));
 
-  setDeleteItem(null);
-};
+    setDeleteItem(null);
+  };
+
+  //   if (isError) {
+  //   return (
+  //     <div className="text-center text-red-400 py-10">
+  //       <span>{t("catalog.error")}</span>
+
+  //       <button
+  //         onClick={onRetry}
+  //         className="ml-3 px-3 py-1 border border-gray-500 rounded text-sm hover:bg-gray-700"
+  //       >
+  //         {t("common.retry")}
+  //       </button>
+  //     </div>
+  //   );
+  // }
 
   if (isError) {
-  return (
-    <div className="text-center text-red-400 py-10">
-      <span>{t("catalog.error")}</span>
-
-      <button
-        onClick={onRetry}
-        className="ml-3 px-3 py-1 border border-gray-500 rounded text-sm hover:bg-gray-700"
-      >
-        {t("common.retry")}
-      </button>
-    </div>
-  );
-}
+    return (
+      <div className="text-center text-red-400 py-10">
+        Failed to load products
+        <button
+          onClick={onRetry}
+          className="ml-3 px-3 py-1 border rounded"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (

@@ -8,7 +8,10 @@ type Params = {
 
 export const useCatalogListQuery = (params: Params) => {
   return useQuery({
-    queryKey: ["products", params],
+    queryKey: ["products",
+      params.search,
+      params.category,
+      params.sort,],
 
     queryFn: async () => {
       const query = new URLSearchParams();
@@ -29,6 +32,6 @@ export const useCatalogListQuery = (params: Params) => {
     },
 
     retry: false,
-    refetchOnWindowFocus: false, 
+    refetchOnWindowFocus: false,
   });
 };

@@ -21,6 +21,7 @@ const Week1CatalogPage = () => {
 
   const { data, isLoading, isError, refetch, isFetching } =
     useCatalogListQuery({
+      search,
       category,
       sort,
     });
@@ -32,9 +33,24 @@ const Week1CatalogPage = () => {
     localStorage.setItem("lang", lang);
   };
 
-  const filteredData = (data as Product[] | undefined)?.filter((product) =>
-    product.name.toLowerCase().includes(search.toLowerCase()),
-  );
+  // const filteredData = (data as Product[] | undefined)?.filter((product) =>
+  //   product.name.toLowerCase().includes(search.toLowerCase()),
+  // );
+
+  // const filteredData =
+  //   !search?.trim()
+  //     ? data
+  //     : data?.filter((product: Product) =>
+  //       product.name.toLowerCase().includes(search.toLowerCase())
+  //     );
+  // const filteredData = data || [];
+
+  const filteredData =
+    !search?.trim()
+      ? data || []
+      : (data || []).filter((product: Product) =>
+        product.name.toLowerCase().includes(search.toLowerCase())
+      );
 
   return (
     <ResponsivePageShell title="Catalog List">
@@ -48,9 +64,8 @@ const Week1CatalogPage = () => {
           <div className="flex items-center gap-2 text-sm">
             <button
               onClick={() => changeLanguage("en")}
-              className={`hover:text-white ${
-                i18n.language === "en" ? "text-white" : "text-gray-400"
-              }`}
+              className={`hover:text-white ${i18n.language === "en" ? "text-white" : "text-gray-400"
+                }`}
             >
               EN
             </button>
@@ -59,9 +74,8 @@ const Week1CatalogPage = () => {
 
             <button
               onClick={() => changeLanguage("es")}
-              className={`hover:text-white ${
-                i18n.language === "es" ? "text-white" : "text-gray-400"
-              }`}
+              className={`hover:text-white ${i18n.language === "es" ? "text-white" : "text-gray-400"
+                }`}
             >
               ES
             </button>
@@ -120,7 +134,7 @@ const Week1CatalogPage = () => {
 
         {/* LIST */}
         <CatalogList
-          data={filteredData || []}   // ✅ USE FILTERED DATA
+          data={filteredData}
           isLoading={isLoading || isFetching}
           isError={isError}
           onRetry={refetch}

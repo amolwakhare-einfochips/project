@@ -10,6 +10,7 @@ import type { Product } from "../types/product";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "../../../store";
 import { setSearch, setCategory, setSort } from "../../state/uiSlice";
+import ListToolbar from "../../../shared/ui/ListToolbar";
 
 const Week1CatalogPage = () => {
   const { t } = useTranslation();
@@ -55,7 +56,6 @@ const Week1CatalogPage = () => {
   return (
     <ResponsivePageShell title="Catalog List">
       <div className="w-full max-w-6xl mx-auto bg-[#0f172a] border border-gray-700 rounded-xl p-4 sm:p-5 md:p-6">
-        
         <div className="flex justify-between items-center mb-4 border-b border-gray-700 pb-3">
           <div className="flex items-center gap-2 text-blue-400 font-medium text-sm sm:text-base">
             ⬡ Catalog
@@ -96,10 +96,10 @@ const Week1CatalogPage = () => {
           </button>
         </div>
 
-        {/* TOOLBAR */}
-        <div className="flex flex-col gap-3 mb-6">
+
+        {/* <div className="flex flex-col gap-3 mb-6">
           {/* SEARCH */}
-          <input
+        {/* <input
             value={search}
             onChange={(e) => dispatch(setSearch(e.target.value))}
             placeholder={t("catalog.search")}
@@ -107,7 +107,7 @@ const Week1CatalogPage = () => {
           />
 
           {/* FILTER + SORT */}
-          <div className="flex flex-col sm:flex-row gap-3">
+        {/* <div className="flex flex-col sm:flex-row gap-3">
             <select
               value={category}
               onChange={(e) => dispatch(setCategory(e.target.value))}
@@ -130,7 +130,23 @@ const Week1CatalogPage = () => {
               <option value="desc">{t("catalog.priceDesc")}</option>
             </select>
           </div>
-        </div>
+        </div> */}
+        <ListToolbar
+          search={search}
+          onSearchChange={(value) => dispatch(setSearch(value))}
+          category={category}
+          onCategoryChange={(value) => dispatch(setCategory(value))}
+          sort={sort}
+          onSortChange={(value) =>
+            dispatch(setSort(value as "asc" | "desc"))
+          }
+          onReset={() => {
+            dispatch(setSearch(""));
+            dispatch(setCategory("all"));
+            dispatch(setSort("asc"));
+          }}
+          showPageSize={false}
+        />
 
         {/* LIST */}
         <CatalogList

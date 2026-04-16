@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { queryKeys } from "../../../shared/ui/api/queryKeys";
 
 type Params = {
   search?: string;
@@ -8,10 +9,7 @@ type Params = {
 
 export const useCatalogListQuery = (params: Params) => {
   return useQuery({
-    queryKey: ["products",
-      params.search,
-      params.category,
-      params.sort,],
+   queryKey: queryKeys.products(params),
 
     queryFn: async () => {
       const query = new URLSearchParams();

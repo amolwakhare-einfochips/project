@@ -1,32 +1,36 @@
 import { useQuery } from "@tanstack/react-query";
+import { queryKeys } from "../../../shared/ui/api/queryKeys";
 
 type Params = {
   page: number;
   search: string;
+  category?: string;
+  sort?: "asc" | "desc";
 };
 
-export type Product = {
-  id: number;
-  name: string;
-  price: number;
-  category: string;
-};
-
-type Response = {
-  data: Product[];
-  total: number;
-  page: number;
-  limit: number;
-};
-
-export const useCatalogExplorerQuery = ({ page, search }: Params) => {
-  return useQuery<Response>({
-    queryKey: ["products", { page, search }],
+export const useCatalogExplorerQuery = (params: Params) => {
+  return useQuery({
+    queryKey: queryKeys.products(params),
 
     queryFn: async () => {
-      const res = await fetch(
-        `/api/products?page=${page}&limit=10&search=${search}`
-      );
+      const query = new URLSearchParams();
+
+      if (params.search) {
+        query.append("search", params.search);
+      }
+
+      if (params.category && params.category !== "all") {
+        query.append("category", params.category);
+      }
+
+      if (params.sort) {
+        query.append("sort", params.sort);
+      }
+
+      query.append("page", String(params.page));
+      query.append("limit", "10");
+
+      const res = await fetch(`/api/products?${query.toString()}`);
 
       if (!res.ok) {
         throw new Error("Failed to fetch products");
@@ -35,6 +39,7 @@ export const useCatalogExplorerQuery = ({ page, search }: Params) => {
       return res.json();
     },
 
-    placeholderData: (prev) => prev,
+    retry: false,
+    refetchOnWindowFocus: false,
   });
 };

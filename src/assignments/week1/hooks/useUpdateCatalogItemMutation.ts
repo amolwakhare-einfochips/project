@@ -17,12 +17,14 @@ export const useUpdateCatalogItemMutation = () => {
 
   return useMutation({
     mutationFn: async (data: UpdateInput) => {
-      const res = await fetch(`/api/products/${data.id}`, {
+      const { id, ...payload } = data;
+
+      const res = await fetch(`/api/products/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload), 
       });
 
       if (!res.ok) {
@@ -31,7 +33,7 @@ export const useUpdateCatalogItemMutation = () => {
         const error: ApiError = new Error("Update failed");
         error.fieldErrors = errorData.fieldErrors;
 
-        throw error; 
+        throw error;
       }
 
       return res.json();

@@ -14,6 +14,8 @@ type Props = {
 
     showPageSize?: boolean;
 
+    reset?: boolean;
+
 };
 
 const ListToolbar = ({
@@ -25,6 +27,7 @@ const ListToolbar = ({
     onSortChange,
     onReset,
     showPageSize,
+    reset,
 }: Props) => {
     return (
         <div className="mb-4">
@@ -41,12 +44,14 @@ const ListToolbar = ({
                     Apply
                 </button>
 
+                {reset && (
                 <button
                     onClick={onReset}
                     className="border border-gray-600 px-4 py-2 rounded"
                 >
                     Reset
                 </button>
+                )}
 
                 {showPageSize && (
                     <select className="bg-[#1e293b] border border-gray-600 px-3 py-2 rounded text-sm text-white">

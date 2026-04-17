@@ -146,6 +146,7 @@ const Week1CatalogPage = () => {
             dispatch(setSort("asc"));
           }}
           showPageSize={false}
+          reset={false}
         />
 
         {/* LIST */}

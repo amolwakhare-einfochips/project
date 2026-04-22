@@ -24,7 +24,7 @@ export const useUpdateCatalogItemMutation = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload), 
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
@@ -36,7 +36,7 @@ export const useUpdateCatalogItemMutation = () => {
         throw error;
       }
 
-      return res.json();
+      return res.json(); 
     },
 
     onMutate: async (newData) => {
@@ -47,7 +47,12 @@ export const useUpdateCatalogItemMutation = () => {
       queryClient.setQueryData<Product[]>(["products"], (old = []) =>
         old.map((p) =>
           p.id === newData.id
-            ? { ...p, ...newData, isSaving: true }
+            ? {
+                ...p,
+                ...newData,
+                price: Number(newData.price), // ✅ ENSURE NUMBER
+                isSaving: true,
+              }
             : p
         )
       );
@@ -61,9 +66,13 @@ export const useUpdateCatalogItemMutation = () => {
       }
     },
 
-    onSuccess: () => {
+    onSuccess: (updatedProduct) => {
       queryClient.setQueryData<Product[]>(["products"], (old = []) =>
-        old.map((p) => ({ ...p, isSaving: false }))
+        old.map((p) =>
+          p.id === updatedProduct.id
+            ? { ...updatedProduct, isSaving: false } // ✅ replace with API data
+            : p
+        )
       );
     },
 

@@ -54,7 +54,7 @@ const EditProductModal = ({ product, onClose }: Props) => {
       {
         id: product.id,
         name: data.name,
-        price: Number(data.price),
+        price: data.price,
         category: data.category,
       },
       {

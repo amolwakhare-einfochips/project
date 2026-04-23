@@ -4,7 +4,7 @@ import ResponsivePageShell from "../../../shared/ui/ResponsivePageShell";
 import { useCatalogListQuery } from "../hooks/useCatalogListQuery";
 import CatalogList from "../components/CatalogList";
 import CreateProductModal from "../components/CreateProductModal";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import type { Product } from "../types/product";
 
 import { useDispatch, useSelector } from "react-redux";
@@ -17,14 +17,14 @@ const Week1CatalogPage = () => {
 
   const dispatch = useDispatch();
   const { search, category, sort } = useSelector(
-    (state: RootState) => state.ui,
+    (state: RootState) => state.ui
   );
+
 
   const { data, isLoading, isError, refetch, isFetching } =
     useCatalogListQuery({
       search,
       category,
-      sort,
     });
 
   const [openModal, setOpenModal] = useState(false);
@@ -34,28 +34,36 @@ const Week1CatalogPage = () => {
     localStorage.setItem("lang", lang);
   };
 
-  // const filteredData = (data as Product[] | undefined)?.filter((product) =>
-  //   product.name.toLowerCase().includes(search.toLowerCase()),
-  // );
+  const processedData = useMemo(() => {
+    let result = [...(data || [])]; // clone to avoid mutation
 
-  // const filteredData =
-  //   !search?.trim()
-  //     ? data
-  //     : data?.filter((product: Product) =>
-  //       product.name.toLowerCase().includes(search.toLowerCase())
-  //     );
-  // const filteredData = data || [];
-
-  const filteredData =
-    !search?.trim()
-      ? data || []
-      : (data || []).filter((product: Product) =>
+    // 🔍 SEARCH
+    if (search.trim()) {
+      result = result.filter((product: Product) =>
         product.name.toLowerCase().includes(search.toLowerCase())
       );
+    }
+
+    if (category) {
+      result = result.filter(
+        (product: Product) => product.category === category
+      );
+    }
+
+    if (sort === "asc") {
+      result.sort((a: Product, b: Product) => a.price - b.price);
+    } else if (sort === "desc") {
+      result.sort((a: Product, b: Product) => b.price - a.price);
+    }
+
+    return result;
+  }, [data, search, category, sort]);
 
   return (
     <ResponsivePageShell title="Catalog List">
       <div className="w-full max-w-6xl mx-auto bg-[#0f172a] border border-gray-700 rounded-xl p-4 sm:p-5 md:p-6">
+
+        {/* HEADER */}
         <div className="flex justify-between items-center mb-4 border-b border-gray-700 pb-3">
           <div className="flex items-center gap-2 text-blue-400 font-medium text-sm sm:text-base">
             ⬡ Catalog
@@ -64,8 +72,9 @@ const Week1CatalogPage = () => {
           <div className="flex items-center gap-2 text-sm">
             <button
               onClick={() => changeLanguage("en")}
-              className={`hover:text-white ${i18n.language === "en" ? "text-white" : "text-gray-400"
-                }`}
+              className={`hover:text-white ${
+                i18n.language === "en" ? "text-white" : "text-gray-400"
+              }`}
             >
               EN
             </button>
@@ -74,8 +83,9 @@ const Week1CatalogPage = () => {
 
             <button
               onClick={() => changeLanguage("es")}
-              className={`hover:text-white ${i18n.language === "es" ? "text-white" : "text-gray-400"
-                }`}
+              className={`hover:text-white ${
+                i18n.language === "es" ? "text-white" : "text-gray-400"
+              }`}
             >
               ES
             </button>
@@ -96,62 +106,20 @@ const Week1CatalogPage = () => {
           </button>
         </div>
 
-
-        {/* <div className="flex flex-col gap-3 mb-6">
-          {/* SEARCH */}
-        {/* <input
-            value={search}
-            onChange={(e) => dispatch(setSearch(e.target.value))}
-            placeholder={t("catalog.search")}
-            className="w-full bg-[#1e293b] border border-gray-600 rounded-md px-4 py-2 text-sm text-white placeholder-gray-400"
-          />
-
-          {/* FILTER + SORT */}
-        {/* <div className="flex flex-col sm:flex-row gap-3">
-            <select
-              value={category}
-              onChange={(e) => dispatch(setCategory(e.target.value))}
-              className="w-full sm:w-auto bg-[#1e293b] border border-gray-600 px-4 py-2 rounded-md text-sm text-white"
-            >
-              <option value="all">{t("catalog.all")}</option>
-              <option value="Audio">{t("catalog.audio")}</option>
-              <option value="Peripherals">{t("catalog.peripherals")}</option>
-              <option value="Accessories">{t("catalog.accessories")}</option>
-            </select>
-
-            <select
-              value={sort}
-              onChange={(e) =>
-                dispatch(setSort(e.target.value as "asc" | "desc"))
-              }
-              className="w-full sm:w-auto bg-[#1e293b] border border-gray-600 px-4 py-2 rounded-md text-sm text-white"
-            >
-              <option value="asc">{t("catalog.priceAsc")}</option>
-              <option value="desc">{t("catalog.priceDesc")}</option>
-            </select>
-          </div>
-        </div> */}
+        {/* TOOLBAR */}
         <ListToolbar
+          layout="inline"
           search={search}
           onSearchChange={(value) => dispatch(setSearch(value))}
           category={category}
           onCategoryChange={(value) => dispatch(setCategory(value))}
           sort={sort}
-          onSortChange={(value) =>
-            dispatch(setSort(value as "asc" | "desc"))
-          }
-          onReset={() => {
-            dispatch(setSearch(""));
-            dispatch(setCategory("all"));
-            dispatch(setSort("asc"));
-          }}
-          showPageSize={false}
-          reset={false}
+          onSortChange={(value) => dispatch(setSort(value))}
         />
 
         {/* LIST */}
         <CatalogList
-          data={filteredData}
+          data={processedData} // ✅ IMPORTANT
           isLoading={isLoading || isFetching}
           isError={isError}
           onRetry={refetch}

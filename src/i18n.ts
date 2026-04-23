@@ -20,6 +20,7 @@ i18n.use(initReactI18next).init({
 
           name: "Name",
           price: "Price",
+          category: "Category",
 
           all: "All",
           audio: "Audio",
@@ -56,6 +57,8 @@ i18n.use(initReactI18next).init({
           priceRequired: "Price is required",
           priceMin: "Price must be greater than 0",
           duplicateName: "Name already exists",
+          categoryRequired: "Category is required"
+
         },
       },
     },
@@ -75,6 +78,7 @@ i18n.use(initReactI18next).init({
 
           name: "Nombre",
           price: "Precio",
+          category: "Categoría",
 
           all: "Todos",
           audio: "Audio",

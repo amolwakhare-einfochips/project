@@ -7,3 +7,14 @@ body {
   color: #e2e8f0;
   font-family: 'DM Sans', sans-serif;
 }
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Remove spinner (Firefox) */
+input[type="number"] {
+  -moz-appearance: textfield;
+}

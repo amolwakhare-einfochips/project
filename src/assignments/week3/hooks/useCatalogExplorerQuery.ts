@@ -4,13 +4,21 @@ import { queryKeys } from "../../../shared/ui/api/queryKeys";
 type Params = {
   page: number;
   search: string;
+  limit: number;
   category?: string;
   sort?: "asc" | "desc";
 };
 
 export const useCatalogExplorerQuery = (params: Params) => {
   return useQuery({
-    queryKey: queryKeys.products(params),
+    queryKey: [
+      "products",
+      params.page,
+      params.limit,
+      params.search,
+      params.category,
+      params.sort,
+    ],
 
     queryFn: async () => {
       const query = new URLSearchParams();
@@ -28,7 +36,8 @@ export const useCatalogExplorerQuery = (params: Params) => {
       }
 
       query.append("page", String(params.page));
-      query.append("limit", "10");
+
+      query.append("limit", String(params.limit));
 
       const res = await fetch(`/api/products?${query.toString()}`);
 
@@ -41,7 +50,7 @@ export const useCatalogExplorerQuery = (params: Params) => {
 
     retry: false,
     refetchOnWindowFocus: false,
-    staleTime: 5 * 60 * 1000, 
-    gcTime: 10 * 60 * 1000,   
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 };

@@ -40,6 +40,8 @@ export default [
       "react/react-in-jsx-scope": "off",
       "@typescript-eslint/no-unused-vars": "warn",
       "no-undef": "off",
+      "react/prop-types": "off",
+
     },
 
     settings: {

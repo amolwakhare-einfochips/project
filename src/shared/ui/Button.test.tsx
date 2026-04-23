@@ -1,18 +1,16 @@
-import { describe, test, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
-import Button from './Button';
+import { describe, it, expect, vi } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
+import Button from "./Button";
 
-describe('Button', () => {
-  test('renders button text', () => {
-    render(<Button label="Click Me" />);
-    expect(screen.getByText('Click Me')).toBeInTheDocument();
-  });
-
-  test('calls onClick when clicked', () => {
+describe("Button", () => {
+  it("calls onClick when clicked", () => {
     const handleClick = vi.fn();
-    render(<Button label="Click Me" onClick={handleClick} />);
 
-    fireEvent.click(screen.getByText('Click Me'));
+    render(<Button onClick={handleClick}>Click Me</Button>);
+
+    const button = screen.getByRole("button", { name: "Click Me" });
+
+    fireEvent.click(button);
 
     expect(handleClick).toHaveBeenCalledTimes(1);
   });

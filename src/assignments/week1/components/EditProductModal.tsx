@@ -6,6 +6,7 @@ import type { Product } from "../types/product";
 
 type Props = {
   product: Product;
+  products: Product[]
   onClose: () => void;
 };
 

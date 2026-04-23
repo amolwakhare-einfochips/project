@@ -3,8 +3,8 @@ import { useWebRTCPreview } from '../../../features/webrtc-room/hooks/useWebRTCP
 import { browserMediaAdapter } from '../../../shared/webrtc/browserMediaAdapter';
 import { useWebRTCConnection } from '../../../features/webrtc-room/hooks/useWebRTCConnection';
 import { BrowserWebSocketClient } from '../../../shared/webrtc/realtime/browserWebSocketClient';
-import { VideoPanel } from '../../../shared/webrtc/components/VideoPanel';
-import { WebRTCStatusBadge } from '../../../shared/webrtc/components/WebRTCStatusBadge';
+import { VideoPanel } from '../../../shared/webrtc/component/VideoPanel';
+import { WebRTCStatusBadge } from '../../../shared/webrtc/component/WebRTCStatusBadge';
 
 export default function WebRTCRoomPage() {
   const wsClient = useMemo(() => {

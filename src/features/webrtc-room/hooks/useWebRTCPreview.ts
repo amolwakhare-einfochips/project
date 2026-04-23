@@ -22,13 +22,14 @@ export function useWebRTCPreview(adapter: MediaDeviceAdapter) {
   const startPreview = async () => {
     if (state !== 'idle') return;
 
+    isActiveRef.current = true;
+
     setError(null);
     setState('starting');
 
     try {
       const mediaStream = await adapter.getStream();
 
-      // If component unmounted during async call
       if (!isActiveRef.current) {
         adapter.stopStream(mediaStream);
         return;
@@ -62,6 +63,8 @@ export function useWebRTCPreview(adapter: MediaDeviceAdapter) {
 
     adapter.stopStream(stream);
     setStream(null);
+
+    setError(null);
 
     setState('idle');
   };

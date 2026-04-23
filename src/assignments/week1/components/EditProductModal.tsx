@@ -6,17 +6,17 @@ import type { Product } from "../types/product";
 
 type Props = {
   product: Product;
-  products: Product[]
+  products: Product[];
   onClose: () => void;
 };
 
 type FormData = {
   name: string;
-  price: number;
+  price: string; // ✅ string (important)
   category: string;
 };
 
-const EditProductModal = ({ product, onClose }: Props) => {
+const EditProductModal = ({ product, products, onClose }: Props) => {
   const { t } = useTranslation();
 
   const {
@@ -24,62 +24,91 @@ const EditProductModal = ({ product, onClose }: Props) => {
     handleSubmit,
     setError,
     control,
+    reset,
     formState: { errors },
-  } = useForm<FormData>({
-    defaultValues: product,
-  });
+  } = useForm<FormData>();
 
   const { mutate, isPending } = useUpdateCatalogItemMutation();
 
   const nameValue = useWatch({ control, name: "name" });
-
   const [checking, setChecking] = useState(false);
 
+  // ✅ Reset form when modal opens
+  useEffect(() => {
+    reset({
+      name: product.name,
+      price: String(product.price), // convert to string
+      category: product.category || "",
+    });
+  }, [product, reset]);
+
+  // ✅ Duplicate name validation
   useEffect(() => {
     if (!nameValue || nameValue === product.name) return;
+
     const timeout = setTimeout(() => {
       setChecking(true);
-      if (nameValue.toLowerCase() === "nano") {
+
+      const isDuplicate = products.some(
+        (p) =>
+          p.name.toLowerCase() === nameValue.toLowerCase() &&
+          p.id !== product.id
+      );
+
+      if (isDuplicate) {
         setError("name", {
           message: t("errors.duplicateName"),
         });
       }
+
       setChecking(false);
     }, 500);
 
     return () => clearTimeout(timeout);
-  }, [nameValue]);
+  }, [nameValue, products, product.id, product.name, setError, t]);
 
+  // ✅ FINAL SUBMIT
   const onSubmit = (data: FormData) => {
-    mutate(
-      {
-        id: product.id,
-        name: data.name,
-        price: data.price,
-        category: data.category,
-      },
-      {
-        onSuccess: onClose,
-        onError: (err: unknown) => {
-          const error = err as {
-            fieldErrors?: Record<string, string>;
-          };
+    const priceNumber = Number(data.price);
 
-          if (error?.fieldErrors) {
-            Object.entries(error.fieldErrors).forEach(([field, message]) => {
-              setError(field as keyof FormData, {
-                message: message as string,
-              });
-            });
-          }
-        },
-      }
-    );
+    if (!data.price) {
+      setError("price", { message: "Price required" });
+      return;
+    }
+
+    if (isNaN(priceNumber)) {
+      setError("price", { message: "Invalid price" });
+      return;
+    }
+
+    if (priceNumber <= 0) {
+      setError("price", { message: "Price must be > 0" });
+      return;
+    }
+
+    if (!data.category) {
+      setError("category", { message: "Category is required" });
+      return;
+    }
+
+    const payload = {
+      id: product.id,
+      name: data.name.trim(),
+      price: priceNumber, // ✅ safe conversion
+      category: data.category,
+    };
+
+    console.log("FINAL PAYLOAD:", payload);
+
+    mutate(payload, {
+      onSuccess: onClose,
+    });
   };
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
       <div className="bg-[#0f172a] p-6 rounded-xl w-full max-w-md border border-gray-700">
+
         {/* HEADER */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-white text-lg font-semibold">
@@ -95,6 +124,7 @@ const EditProductModal = ({ product, onClose }: Props) => {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)}>
+
           {/* NAME */}
           <div className="mb-4">
             <label className="text-sm text-gray-300">
@@ -105,48 +135,57 @@ const EditProductModal = ({ product, onClose }: Props) => {
               {...register("name", {
                 required: t("errors.nameRequired"),
               })}
-              className={`w-full mt-1 px-3 py-2 rounded bg-[#1e293b] text-white border ${errors.name ? "border-red-500" : "border-gray-600"
-                }`}
+              className={`w-full mt-1 px-3 py-2 rounded bg-[#1e293b] text-white border ${
+                errors.name ? "border-red-500" : "border-gray-600"
+              }`}
             />
 
             {checking && !errors.name && (
-              <p className="text-red-400 text-xs mt-1 flex items-center gap-1">
-                ⚠ {t("catalog.checking", "Checking uniqueness...")}
+              <p className="text-yellow-400 text-xs mt-1">
+                {t("catalog.checking")}
               </p>
             )}
 
-            {/* ERROR */}
             {errors.name && (
-              <p className="text-red-400 text-xs mt-1 flex items-center gap-1">
-                ⚠ {errors.name.message}
+              <p className="text-red-400 text-xs mt-1">
+                {errors.name.message}
               </p>
             )}
           </div>
 
-          {/* PRICE */}
+          {/* ✅ PRICE (FINAL FIX) */}
           <div className="mb-4">
             <label className="text-sm text-gray-300">
               {t("catalog.price")} *
             </label>
 
             <input
-              type="number"
-              step="0.01"
+              type="text" // ✅ KEY FIX
+              placeholder="e.g. 29.99"
               {...register("price", {
                 required: t("errors.priceRequired"),
-                valueAsNumber: true,
-                min: {
-                  value: 1,
-                  message: t("errors.priceMin"),
+                validate: (value) => {
+                  const num = Number(value);
+
+                  if (!value) return "Price required";
+                  if (isNaN(num)) return "Invalid number";
+                  if (num <= 0) return "Price must be > 0";
+
+                  if (!/^\d+(\.\d{1,2})?$/.test(value)) {
+                    return "Max 2 decimal places allowed";
+                  }
+
+                  return true;
                 },
               })}
-              className={`w-full mt-1 px-3 py-2 rounded bg-[#1e293b] text-white border ${errors.price ? "border-red-500" : "border-gray-600"
-                }`}
+              className={`w-full mt-1 px-3 py-2 rounded bg-[#1e293b] text-white border ${
+                errors.price ? "border-red-500" : "border-gray-600"
+              }`}
             />
 
             {errors.price && (
-              <p className="text-red-400 text-xs mt-1 flex items-center gap-1">
-                ⚠ {errors.price.message}
+              <p className="text-red-400 text-xs mt-1">
+                {errors.price.message}
               </p>
             )}
           </div>
@@ -154,17 +193,28 @@ const EditProductModal = ({ product, onClose }: Props) => {
           {/* CATEGORY */}
           <div className="mb-6">
             <label className="text-sm text-gray-300">
-              {t("catalog.category")}
+              {t("catalog.category")} *
             </label>
 
             <select
-              {...register("category")}
-              className="w-full mt-1 px-3 py-2 rounded bg-[#1e293b] text-white border border-gray-600"
+              {...register("category", {
+                required: "Category is required",
+              })}
+              className={`w-full mt-1 px-3 py-2 rounded bg-[#1e293b] text-white border ${
+                errors.category ? "border-red-500" : "border-gray-600"
+              }`}
             >
+              <option value="">Select category</option>
               <option value="Audio">{t("catalog.audio")}</option>
               <option value="Peripherals">{t("catalog.peripherals")}</option>
               <option value="Accessories">{t("catalog.accessories")}</option>
             </select>
+
+            {errors.category && (
+              <p className="text-red-400 text-xs mt-1">
+                {errors.category.message}
+              </p>
+            )}
           </div>
 
           {/* ACTIONS */}

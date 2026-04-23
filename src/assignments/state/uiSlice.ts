@@ -9,7 +9,7 @@ type UiState = {
 
 const initialState: UiState = {
   search: "",
-  category: "all",
+  category: "",
   sort: "asc",
 };
 

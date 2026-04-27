@@ -22,33 +22,24 @@ export default function WebRTCRoomPage() {
   const { state, stream, error, startPreview, stopPreview } =
     useWebRTCPreview(browserMediaAdapter);
 
-  const handleStartPreview = useCallback(() => {
-    startPreview();
-  }, [startPreview]);
-
-  const handleStopPreview = useCallback(() => {
-    stopPreview();
-  }, [stopPreview]);
-
-  const handleConnect = useCallback(() => {
-    connect();
-  }, [connect]);
-
-  const handleDisconnect = useCallback(() => {
-    disconnect();
-  }, [disconnect]);
+  const handleStartPreview = useCallback(() => startPreview(), [startPreview]);
+  const handleStopPreview = useCallback(() => stopPreview(), [stopPreview]);
+  const handleConnect = useCallback(() => connect(), [connect]);
+  const handleDisconnect = useCallback(() => disconnect(), [disconnect]);
 
   return (
-    <div className="p-6 bg-[#0b0f19] min-h-screen text-white">
-      <div className="bg-[#111827] rounded-2xl p-4 border border-slate-700">
+    <div className="min-h-screen bg-[#0b0f19] text-white px-3 sm:px-6 lg:px-10 py-4">
+
+      <div className="w-full max-w-6xl mx-auto bg-[#111827] rounded-2xl p-4 sm:p-5 md:p-6 border border-slate-700">
 
         {/* HEADER */}
-        <div className="flex justify-between items-center mb-3">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
           <div className="text-sm text-gray-400">
-            MD — {connectionState}, {remoteState === 'idle' ? 'No Remote' : remoteState}
+            MD — {connectionState},{' '}
+            {remoteState === 'idle' ? 'No Remote' : remoteState}
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {connectionState === 'connecting' && (
               <WebRTCStatusBadge label="Connecting..." type="warning" />
             )}
@@ -62,11 +53,12 @@ export default function WebRTCRoomPage() {
         </div>
 
         {/* CONTROLS */}
-        <div className="flex gap-2 mb-4">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-2 mb-4">
+
           <button
             onClick={handleStartPreview}
             disabled={state !== 'idle'}
-            className="px-4 py-2 bg-blue-600 rounded disabled:opacity-50"
+            className="w-full sm:w-auto px-4 py-2 bg-blue-600 rounded disabled:opacity-50"
           >
             ▶ Start Preview
           </button>
@@ -74,7 +66,7 @@ export default function WebRTCRoomPage() {
           <button
             onClick={handleStopPreview}
             disabled={state !== 'running'}
-            className="px-4 py-2 bg-gray-700 rounded disabled:opacity-50"
+            className="w-full sm:w-auto px-4 py-2 bg-gray-700 rounded disabled:opacity-50"
           >
             ■ Stop
           </button>
@@ -82,7 +74,7 @@ export default function WebRTCRoomPage() {
           <button
             onClick={handleConnect}
             disabled={connectionState !== 'idle'}
-            className="px-4 py-2 bg-gray-700 rounded disabled:opacity-50"
+            className="w-full sm:w-auto px-4 py-2 bg-gray-700 rounded disabled:opacity-50"
           >
             🔗 Connect
           </button>
@@ -90,7 +82,7 @@ export default function WebRTCRoomPage() {
           <button
             onClick={handleDisconnect}
             disabled={connectionState !== 'connected'}
-            className="px-4 py-2 bg-red-600 rounded disabled:opacity-50"
+            className="w-full sm:w-auto px-4 py-2 bg-red-600 rounded disabled:opacity-50"
           >
             ⛔ Disconnect
           </button>
@@ -99,7 +91,6 @@ export default function WebRTCRoomPage() {
         {/* VIDEO GRID */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-          {/* LOCAL VIDEO */}
           <VideoPanel
             stream={stream}
             label="Idle — preview not started"
@@ -108,7 +99,6 @@ export default function WebRTCRoomPage() {
             error={state === 'error' ? error : null}
           />
 
-          {/* REMOTE VIDEO */}
           <VideoPanel
             stream={remoteStream}
             label="Waiting for remote..."
@@ -126,18 +116,19 @@ export default function WebRTCRoomPage() {
         </div>
 
         {/* LOG PANEL */}
-        <div className="mt-4 bg-black rounded-xl p-4 text-sm text-green-400">
+        <div className="mt-4 bg-black rounded-xl p-4 text-sm text-green-400 max-h-40 overflow-y-auto">
           <div className="mb-2 text-gray-300">WebSocket Event Log</div>
           <div>SOCKET Connecting to signaling...</div>
           <div>SOCKET Socket opened</div>
         </div>
 
         {/* FOOTER */}
-        <div className="mt-3 flex gap-2 text-xs">
+        <div className="mt-3 flex flex-wrap gap-2 text-xs">
           <span className="bg-yellow-600/20 px-2 py-1 rounded">connecting</span>
           <span className="bg-gray-600/20 px-2 py-1 rounded">preview idle</span>
           <span className="bg-gray-600/20 px-2 py-1 rounded">no remote</span>
         </div>
+
       </div>
     </div>
   );

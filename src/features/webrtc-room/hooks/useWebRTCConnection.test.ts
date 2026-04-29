@@ -1,17 +1,23 @@
-import { renderHook, act } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
-import { useWebRTCConnection } from './useWebRTCConnection';
-import type { SignalMessage } from '../../../shared/webrtc/realtime/types';
-import type { IWebSocketClient } from '../../../shared/webrtc/realtime/WebSocketClient';
+import { renderHook, act } from "@testing-library/react";
+import { describe, it, expect, vi } from "vitest";
+import { useWebRTCConnection } from "./useWebRTCConnection";
+import type { SignalMessage } from "../../../shared/webrtc/realtime/types";
+import type { IWebSocketClient } from "../../../shared/webrtc/realtime/WebSocketClient";
 
 class MockMediaStream {
+  private tracks: MediaStreamTrack[] = [];
+
+  addTrack(track: MediaStreamTrack) {
+    this.tracks.push(track);
+  }
+
   getTracks() {
-    return [];
+    return this.tracks;
   }
 }
 
-(global as unknown as { MediaStream: typeof MockMediaStream }).MediaStream =
-  MockMediaStream;
+(global as unknown as { MediaStream: typeof MediaStream }).MediaStream =
+  MockMediaStream as unknown as typeof MediaStream;
 
 function createMockClient(): IWebSocketClient & {
   simulateMessage: (msg: SignalMessage) => void;
@@ -33,13 +39,13 @@ function createMockClient(): IWebSocketClient & {
   };
 }
 
-describe('useWebRTCConnection', () => {
-  it('connect calls connect and sends join message', () => {
+describe("useWebRTCConnection", () => {
+  it("connect calls connect and sends join message", () => {
     const client = createMockClient();
 
-    const { result } = renderHook(() =>
-      useWebRTCConnection(client, 'room-1')
-    );
+    const mockStream = new MediaStream();
+
+    const { result } = renderHook(() => useWebRTCConnection(client, "room-1", mockStream));
 
     act(() => {
       result.current.connect();
@@ -48,17 +54,24 @@ describe('useWebRTCConnection', () => {
     expect(client.connect).toHaveBeenCalled();
 
     expect(client.send).toHaveBeenCalledWith({
-      type: 'join',
-      roomId: 'room-1',
+      type: "join",
+      roomId: "room-1",
     });
   });
 
-  it('handles remote-track message and updates state', () => {
+  it("handles remote-track message and updates state", () => {
     const client = createMockClient();
 
-    const { result } = renderHook(() =>
-      useWebRTCConnection(client, 'room-1')
-    );
+    const mockStream = new MediaStream();
+
+    const mockTrack = {
+      kind: "video",
+      stop: vi.fn(),
+    } as unknown as MediaStreamTrack;
+
+    mockStream.addTrack(mockTrack);
+
+    const { result } = renderHook(() => useWebRTCConnection(client, "room-1", mockStream));
 
     act(() => {
       result.current.connect();
@@ -66,21 +79,22 @@ describe('useWebRTCConnection', () => {
 
     act(() => {
       client.simulateMessage({
-        type: 'remote-track',
-        kind: 'video',
+        type: "remote-track",
+        kind: "video",
       });
     });
 
-    expect(result.current.remoteState).toBe('receiving');
+    expect(result.current.remoteState).toBe("receiving");
+
     expect(result.current.remoteStream).not.toBeNull();
   });
 
-  it('disconnect sends leave and resets state', () => {
+  it("disconnect sends leave and resets state", () => {
     const client = createMockClient();
 
-    const { result } = renderHook(() =>
-      useWebRTCConnection(client, 'room-1')
-    );
+    const mockStream = new MediaStream();
+
+    const { result } = renderHook(() => useWebRTCConnection(client, "room-1", mockStream));
 
     act(() => {
       result.current.connect();
@@ -91,21 +105,23 @@ describe('useWebRTCConnection', () => {
     });
 
     expect(client.send).toHaveBeenCalledWith({
-      type: 'leave',
-      roomId: 'room-1',
+      type: "leave",
+      roomId: "room-1",
     });
 
     expect(client.disconnect).toHaveBeenCalled();
-    expect(result.current.connectionState).toBe('idle');
-    expect(result.current.remoteState).toBe('disconnected');
+
+    expect(result.current.connectionState).toBe("idle");
+
+    expect(result.current.remoteState).toBe("disconnected");
   });
 
-  it('does not update state after unmount', () => {
+  it("does not update state after unmount", () => {
     const client = createMockClient();
 
-    const { result, unmount } = renderHook(() =>
-      useWebRTCConnection(client, 'room-1')
-    );
+    const mockStream = new MediaStream();
+
+    const { result, unmount } = renderHook(() => useWebRTCConnection(client, "room-1", mockStream));
 
     act(() => {
       result.current.connect();
@@ -115,11 +131,11 @@ describe('useWebRTCConnection', () => {
 
     act(() => {
       client.simulateMessage({
-        type: 'remote-track',
-        kind: 'video',
+        type: "remote-track",
+        kind: "video",
       });
     });
 
-    expect(result.current.remoteState).not.toBe('receiving');
+    expect(result.current.remoteState).not.toBe("receiving");
   });
 });

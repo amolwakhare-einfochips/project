@@ -1,26 +1,25 @@
-import { useEffect, useRef, useState } from 'react';
-import type { IWebSocketClient } from '../../../shared/webrtc/realtime/WebSocketClient';
-import type { ConnectionState, RemoteState } from '../../../shared/webrtc/types';
-import type { SignalMessage } from '../../../shared/webrtc/realtime/types';
+import { useEffect, useRef, useState } from "react";
+import type { IWebSocketClient } from "../../../shared/webrtc/realtime/WebSocketClient";
+import type { ConnectionState, RemoteState } from "../../../shared/webrtc/types";
+import type { SignalMessage } from "../../../shared/webrtc/realtime/types";
 
 export function useWebRTCConnection(
   client: IWebSocketClient,
-  roomId: string
+  roomId: string,
+  localStream?: MediaStream | null
 ) {
-  const [connectionState, setConnectionState] =
-    useState<ConnectionState>('idle');
+  const [connectionState, setConnectionState] = useState<ConnectionState>("idle");
 
-  const [remoteState, setRemoteState] =
-    useState<RemoteState>('idle');
+  const [remoteState, setRemoteState] = useState<RemoteState>("idle");
 
-  const [remoteStream, setRemoteStream] =
-    useState<MediaStream | null>(null);
+  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
 
   const isActiveRef = useRef(true);
 
   useEffect(() => {
     return () => {
       isActiveRef.current = false;
+
       client.disconnect();
     };
   }, [client]);
@@ -30,19 +29,28 @@ export function useWebRTCConnection(
       if (!isActiveRef.current) return;
 
       switch (msg.type) {
-        case 'CONNECTED':
-          setConnectionState('connected');
+        case "CONNECTED": {
+          setConnectionState("connected");
           break;
+        }
 
-        case 'ERROR':
-          setConnectionState('error');
+        case "ERROR": {
+          setConnectionState("error");
           break;
+        }
 
-        case 'remote-track': {
-          setRemoteState('receiving');
+        case "remote-track": {
+          setRemoteState("receiving");
 
-          const mockStream = new MediaStream();
-          setRemoteStream(mockStream);
+          if (localStream) {
+            const streamWithTracks = new MediaStream();
+
+            localStream.getTracks().forEach((track) => {
+              streamWithTracks.addTrack(track);
+            });
+
+            setRemoteStream(streamWithTracks);
+          }
 
           break;
         }
@@ -51,32 +59,33 @@ export function useWebRTCConnection(
           break;
       }
     });
-  }, [client]);
+  }, [client, localStream]);
 
   const connect = () => {
-    if (connectionState !== 'idle') return;
+    if (connectionState !== "idle") return;
 
-    setConnectionState('connecting');
-    setRemoteState('connecting');
+    setConnectionState("connecting");
+    setRemoteState("connecting");
 
     client.connect();
 
     client.send({
-      type: 'join',
+      type: "join",
       roomId,
     });
   };
 
   const disconnect = () => {
     client.send({
-      type: 'leave',
+      type: "leave",
       roomId,
     });
 
     client.disconnect();
 
-    setConnectionState('idle');
-    setRemoteState('disconnected');
+    setConnectionState("idle");
+    setRemoteState("disconnected");
+
     setRemoteStream(null);
   };
 

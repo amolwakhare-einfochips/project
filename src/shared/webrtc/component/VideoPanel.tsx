@@ -1,4 +1,4 @@
-import { useEffect, useRef, memo } from 'react';
+import { useEffect, useRef, memo } from "react";
 
 type VideoPanelProps = {
   stream: MediaStream | null;
@@ -8,25 +8,31 @@ type VideoPanelProps = {
   error?: string | null;
 };
 
-function VideoPanelComponent({
-  stream,
-  label,
-  subLabel,
-  isLocal = false,
-  error,
-}: VideoPanelProps) {
+function VideoPanelComponent({ stream, label, subLabel, isLocal = false, error }: VideoPanelProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.srcObject = stream || null;
+    if (videoRef.current && stream) {
+      videoRef.current.srcObject = stream;
+      videoRef.current.play().catch(() => {});
     }
   }, [stream]);
 
   return (
-    <div className="relative rounded-2xl h-72 flex items-center justify-center overflow-hidden
-      bg-black border border-green-500/30">
-
+    <div
+      className="
+        relative
+        rounded-2xl
+        h-72
+        flex
+        items-center
+        justify-center
+        overflow-hidden
+        bg-black
+        border
+        border-green-500/30
+      "
+    >
       {stream ? (
         <video
           ref={videoRef}
@@ -38,18 +44,29 @@ function VideoPanelComponent({
       ) : error ? (
         <div className="text-center text-red-400 px-4">
           <div className="text-3xl mb-2">🚫</div>
+
           <div className="font-semibold">{error}</div>
         </div>
       ) : (
         <div className="text-center text-gray-400">
-          <div className="text-3xl mb-2">
-            {isLocal ? '📷' : '👤'}
-          </div>
+          <div className="text-3xl mb-2">{isLocal ? "📷" : "👤"}</div>
+
           <div>{label}</div>
         </div>
       )}
 
-      <div className="absolute bottom-2 left-2 text-xs bg-black/70 px-2 py-1 rounded">
+      <div
+        className="
+          absolute
+          bottom-2
+          left-2
+          text-xs
+          bg-black/70
+          px-2
+          py-1
+          rounded
+        "
+      >
         {subLabel}
       </div>
     </div>
